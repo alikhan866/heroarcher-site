@@ -388,7 +388,8 @@ h1, h2, h3 { font-weight: 400; }
   background: var(--panel);
   box-shadow: 0 24px 50px rgba(0, 0, 0, .45);
 }
-.clip video {
+.clip video,
+.clip img {
   width: 100%;
   aspect-ratio: 540 / 590;
   object-fit: cover;

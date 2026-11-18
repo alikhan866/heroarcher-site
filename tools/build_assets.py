@@ -4,10 +4,9 @@
 
 The game repo defaults to ../Evil-archer next to this repo. Output overwrites
 assets/ and the root icons, so re-run it whenever the game art changes.
-Needs Pillow, fontTools + brotli, and imageio-ffmpeg (for its ffmpeg binary).
+Needs Pillow and fontTools + brotli.
 """
 import os
-import subprocess
 import sys
 
 from PIL import Image
@@ -16,8 +15,7 @@ SITE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(SITE, "..", "Evil-archer"))
 IMG = os.path.join(SITE, "assets", "img")
 FONTS = os.path.join(SITE, "assets", "fonts")
-VIDEO = os.path.join(SITE, "assets", "video")
-for d in (IMG, FONTS, VIDEO):
+for d in (IMG, FONTS):
     os.makedirs(d, exist_ok=True)
 
 
@@ -82,12 +80,20 @@ for src, name in [
     webp(im, name + "-400", 400, quality=78)
 
 # Store screenshots (docs/release/store-assets/v25) minus their caption band.
-for src, name in [("02_lightning", "shot-lightning"), ("03_rain", "shot-rain"),
-                  ("04_boss", "shot-boss"), ("06_gear", "shot-gear")]:
+for src, name in [("02_lightning", "shot-lightning"), ("04_boss", "shot-boss"),
+                  ("05_perks", "shot-contraption"), ("06_gear", "shot-gear")]:
     im = Image.open(game("docs", "release", "store-assets", "v25", src + ".png")).convert("RGB")
     im = im.crop((0, 336, 1080, 1920))
     webp(im, name + "-720", 720, quality=80)
     webp(im, name + "-360", 360, quality=80)
+
+# The "how it plays" still: the Frostpeak Arrow Rain battlefield, framed like
+# the old clip (top of the screen down to the ability bar). It stands in until
+# a new gameplay recording replaces it.
+im = Image.open(game("docs", "release", "store-assets", "v25", "03_rain.png")).convert("RGB")
+im = im.crop((0, 336, 1080, 336 + 1180))
+webp(im, "battle-frostpeak-1080", quality=80)
+webp(im, "battle-frostpeak-540", 540, quality=80)
 
 for src, name in [("ability_arrow_rain", "ico-arrow-rain"), ("icon_workshop", "ico-workshop"),
                   ("icon_chest", "ico-chest"), ("icon_trophy", "ico-trophy")]:
@@ -150,20 +156,7 @@ out = os.path.join(FONTS, "lilita-one.woff2")
 font.save(out)
 print(f"  lilita-one.woff2  {os.path.getsize(out) // 1024} KB")
 
-print("video")
-import imageio_ffmpeg  # noqa: E402
-
-ff = imageio_ffmpeg.get_ffmpeg_exe()
-src = game("docs", "release", "store-assets", "gameplay-1080x1920.mp4")
-# The recording cuts to the Run Over screen at 4.73 s: keep the fight, crop off the HUD.
-subprocess.run([ff, "-hide_banner", "-loglevel", "error", "-y", "-i", src, "-t", "4.6",
-                "-vf", "crop=1080:1180:0:0,scale=540:-2", "-c:v", "libx264", "-crf", "26",
-                "-preset", "slow", "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
-                os.path.join(VIDEO, "gameplay.mp4")], check=True)
-poster = os.path.join(VIDEO, "gameplay-poster.jpg")
-subprocess.run([ff, "-hide_banner", "-loglevel", "error", "-y", "-ss", "2.5", "-i", src,
-                "-frames:v", "1", "-vf", "crop=1080:1180:0:0,scale=540:-2", "-q:v", "4", poster], check=True)
-Image.open(poster).save(os.path.join(IMG, "gameplay-poster.webp"), "WEBP", quality=78)
-os.remove(poster)
-print("  gameplay.mp4", os.path.getsize(os.path.join(VIDEO, "gameplay.mp4")) // 1024, "KB")
+# No video for now: the old store recording (gameplay-1080x1920.mp4) shows
+# enemies that should not be in that wave. A new recording will bring the clip
+# back, as assets/video/gameplay.mp4 with a poster, into the .clip figure.
 print("done")

@@ -43,9 +43,8 @@ and no em dashes.
 python tools/build_assets.py ../Evil-archer
 ```
 
-This rebuilds every image, both fonts, the gameplay clip, the favicons and
-the link-preview image from the game repo (Pillow, fontTools with brotli, and
-imageio-ffmpeg are needed). The tower picture puts the archer on the tower at
+This rebuilds every image, both fonts, the favicons and the link-preview image
+from the game repo (Pillow and fontTools with brotli are needed). The tower picture puts the archer on the tower at
 the same spot the game's home screen does (`MenuArcherDoll.cs`).
 
 `assets/img/google-play-badge.png` is Google's official badge from
@@ -53,10 +52,20 @@ https://play.google.com/intl/en_us/badges/ and is not generated. When it is
 used, the footer line "Google Play and the Google Play logo are trademarks of
 Google LLC." has to stay.
 
-The gameplay clip is the first 4.6 seconds of
-`docs/release/store-assets/gameplay-1080x1920.mp4`, because the recording cuts
-to the Run Over screen after that. A longer recording of a good fight would
-improve that section; drop it in and change the trim in the script.
+The "how it plays" section shows a still (Arrow Rain in Frostpeak) for now.
+The old store recording, `docs/release/store-assets/gameplay-1080x1920.mp4`,
+has enemies in it that do not belong in that wave, so it is not used. When a
+new recording exists, put a short muted loop in `assets/video/gameplay.mp4`
+and swap the `<img>` in the `.clip` figure for:
+
+```html
+<video data-clip muted loop playsinline preload="none" width="540" height="590"
+       poster="assets/img/gameplay-poster.webp" aria-label="...">
+  <source src="assets/video/gameplay.mp4" type="video/mp4">
+</video>
+```
+
+`site.js` already plays it only while it is on screen.
 
 ## What site.js does
 
@@ -74,8 +83,9 @@ improve that section; drop it in and change the trim in the script.
 2. **iPhone visitors** see a line saying the game is Android only for now.
    Remove the `.ios-note` paragraph in `index.html` once the App Store version
    is out, and add an App Store link next to the Play one.
-3. **The gameplay clip** plays only while it is on screen, and shows controls
-   instead of autoplaying for people who ask for reduced motion.
+3. **A gameplay clip**, when there is one (see above), plays only while it is
+   on screen, and shows controls instead of autoplaying for people who ask
+   for reduced motion.
 
 ## Domain setup (GoDaddy)
 
