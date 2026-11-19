@@ -125,12 +125,100 @@ icon.resize((192, 192), Image.LANCZOS).save(os.path.join(SITE, "icon-192.png"), 
 icon.resize((180, 180), Image.LANCZOS).save(os.path.join(SITE, "apple-touch-icon.png"), optimize=True)
 icon.save(os.path.join(SITE, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
 
-# Link preview (Open Graph): the store feature graphic on the page colour.
-feature = Image.open(game("docs", "release", "store-assets", "feature-graphic-1024x500.png")).convert("RGB")
-feature = feature.resize((1200, round(500 * 1200 / 1024)), Image.LANCZOS)
-og = Image.new("RGB", (1200, 630), (29, 21, 14))
-og.paste(feature, (0, (630 - feature.height) // 2))
-og.save(os.path.join(SITE, "og-image.jpg"), "JPEG", quality=86, optimize=True, progressive=True)
+# Link preview (Open Graph, what WhatsApp and the rest show): the page's own
+# hero, so a shared link looks like the site. The logo and the page's first
+# line on the left; on the right the same dusk arch (the .arch rules in
+# site.css: elliptical top, 5px border, a gap, an outer ring, a thin gold inner
+# line) with the same tower and archer in front of it, the ground shadow and
+# the embers. It used to be the store feature graphic, whose old hooded
+# archer and plain brown backdrop matched nothing on the page.
+from PIL import ImageDraw, ImageFilter, ImageFont  # noqa: E402
+
+OW, OH, S = 1200, 630, 2  # drawn at 2x, then scaled down for clean curves
+BG, BORDER, PANEL_LIGHT = (29, 21, 14), (107, 79, 42), (76, 58, 41)
+og = Image.new("RGBA", (OW * S, OH * S), BG + (255,))
+
+
+def arch_mask(w, h, inset=0):
+    """The .arch shape: a half-ellipse top (radii 50% x 38%) over a box with 26px bottom corners."""
+    m = Image.new("L", (w, h), 0)
+    d = ImageDraw.Draw(m)
+    ry, r = 0.38 * h, 26 * S
+    d.ellipse([inset, inset, w - inset, 2 * ry - inset], fill=255)
+    d.rounded_rectangle([inset, ry, w - inset, h - inset], radius=max(1, r - inset), fill=255)
+    d.rectangle([inset, ry, w - inset, h - inset - r], fill=255)
+    return m
+
+
+# a warm glow behind the arch
+aw, ah = 455 * S, 520 * S
+ax, ay = OW * S - 70 * S - aw, 28 * S
+glow = Image.new("L", og.size, 0)
+ImageDraw.Draw(glow).ellipse([ax - 60 * S, ay + 20 * S, ax + aw + 60 * S, ay + ah + 40 * S], fill=70)
+glow = glow.filter(ImageFilter.GaussianBlur(70 * S))
+og.paste(Image.new("RGBA", og.size, (240, 180, 65, 255)), (0, 0), glow.point(lambda v: v * 0.55))
+
+# the frame: outer ring, page-colour gap, border, then the painting
+for grow, colour in [(10 * S, PANEL_LIGHT), (8 * S, BG), (5 * S, BORDER)]:
+    m = arch_mask(aw + 2 * grow, ah + 2 * grow)
+    og.paste(Image.new("RGBA", m.size, colour + (255,)), (ax - grow, ay - grow), m)
+pic = dusk.copy()
+scale = max(aw / pic.width, ah / pic.height)
+pic = pic.resize((round(pic.width * scale), round(pic.height * scale)), Image.LANCZOS)
+top = round((pic.height - ah) * 0.36)  # object-position: 50% 36%
+pic = pic.crop(((pic.width - aw) // 2, top, (pic.width - aw) // 2 + aw, top + ah))
+og.paste(pic.convert("RGBA"), (ax, ay), arch_mask(aw, ah))
+inner = arch_mask(aw, ah, inset=9 * S)
+line = inner.filter(ImageFilter.MaxFilter(5)).point(lambda v: 255 if v else 0)
+ring = Image.new("L", inner.size, 0)
+ring.paste(line, (0, 0))
+ring.paste(0, (0, 0), arch_mask(aw, ah, inset=11 * S))
+og.paste(Image.new("RGBA", ring.size, (240, 180, 65, 255)), (ax, ay), ring.point(lambda v: v * 0.4))
+
+# the ground shadow, the tower and the archer (the composite the hero uses)
+th = round(ah * 0.91)
+tw = round(canvas.width * th / canvas.height)
+tx, tyb = ax + (aw - tw) // 2, ay + ah + 40 * S
+shadow = Image.new("L", og.size, 0)
+ImageDraw.Draw(shadow).ellipse([tx + tw * 0.12, tyb - 34 * S, tx + tw * 0.88, tyb + 10 * S], fill=150)
+og.paste(Image.new("RGBA", og.size, (0, 0, 0, 255)), (0, 0), shadow.filter(ImageFilter.GaussianBlur(14 * S)))
+t = canvas.resize((tw, th), Image.LANCZOS)
+drop = Image.new("L", og.size, 0)
+drop.paste(t.split()[3], (tx, tyb - th + 12 * S))
+og.paste(Image.new("RGBA", og.size, (0, 0, 0, 255)), (0, 0), drop.filter(ImageFilter.GaussianBlur(14 * S)).point(lambda v: v * 0.5))
+og.alpha_composite(t, (tx, tyb - th))
+
+# embers rising round the arch, like the page's
+import random  # noqa: E402
+rnd = random.Random(11)
+glowy = Image.new("RGBA", og.size, (0, 0, 0, 0))
+gd = ImageDraw.Draw(glowy)
+for _ in range(16):
+    ex = rnd.uniform(ax - 30 * S, ax + aw + 30 * S)
+    ey = rnd.uniform(ay + 40 * S, ay + ah * 0.8)
+    r = rnd.uniform(2.2, 3.4) * S
+    gd.ellipse([ex - r * 3, ey - r * 3, ex + r * 3, ey + r * 3], fill=(255, 140, 40, 70))
+    gd.ellipse([ex - r, ey - r, ex + r, ey + r], fill=(255, 179, 71, 235))
+og.alpha_composite(glowy.filter(ImageFilter.GaussianBlur(1.2 * S)))
+
+# the logo and the page's first line
+lw = 560 * S
+lg = logo.resize((lw, round(logo.height * lw / logo.width)), Image.LANCZOS)
+tag_font = ImageFont.truetype(game("Assets", "Fonts", "LilitaOne-Regular.ttf"), 56 * S)
+tag = "The forest is crawling."
+tb = tag_font.getbbox(tag)
+block = lg.height + 18 * S + (tb[3] - tb[1])
+lx, ly = 50 * S, (OH * S - block) // 2 - 10 * S
+og.alpha_composite(lg, (lx, ly))
+tx0 = lx + (lw - (tb[2] - tb[0])) // 2 - tb[0]
+ty0 = ly + lg.height + 18 * S - tb[1]
+td = ImageDraw.Draw(og)
+td.text((tx0, ty0 + 4 * S), tag, font=tag_font, fill=(0, 0, 0, 140))
+td.text((tx0, ty0), tag, font=tag_font, fill=(245, 237, 220, 255))
+
+og = og.convert("RGB").resize((OW, OH), Image.LANCZOS)
+og.save(os.path.join(SITE, "og-image.jpg"), "JPEG", quality=88, optimize=True, progressive=True)
+print(f"  og-image.jpg  {OW}x{OH}  {os.path.getsize(os.path.join(SITE, 'og-image.jpg')) // 1024} KB")
 
 print("fonts")
 from fontTools import subset  # noqa: E402

@@ -39,7 +39,7 @@ fights alone", "Waves and bosses", "The chapters", "The loop") are the
 tutorial's own card titles. Keep it that way: specific, in the game's voice,
 and no em dashes.
 
-## After changing site.css or site.js
+## After changing site.css, site.js or og-image.jpg
 
 ```
 python tools/stamp_assets.py
@@ -47,7 +47,9 @@ python tools/stamp_assets.py
 
 Every page links them as `site.css?v=<hash>` and `site.js?v=<hash>`. GitHub
 Pages lets browsers keep them for 10 minutes, so without a new stamp a visitor
-can get the new page with the old styles and script. Run it before committing.
+can get the new page with the old styles and script. The link-preview image
+is stamped too: WhatsApp and the rest cache it by its address. Run it before
+committing.
 
 ## Rebuilding the art
 

@@ -1,11 +1,13 @@
-"""Stamp the stylesheet and script links with a hash of their contents.
+"""Stamp the stylesheet, script and link-preview image with a hash of their contents.
 
     python tools/stamp_assets.py
 
 GitHub Pages lets browsers keep CSS and JS for 10 minutes, and the file names
 never change, so after a push a visitor can get the new page with the old
 styles and script. Every page links them as site.css?v=<hash>; run this after
-changing either file (before committing) and the link changes with the file.
+changing any of them (before committing) and the link changes with the file.
+The preview image is stamped for the same reason: WhatsApp, Facebook and the
+rest cache it by its address, so a new image under the old one is never seen.
 """
 import glob
 import hashlib
@@ -13,7 +15,9 @@ import os
 import re
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-ASSETS = {"site.css": "assets/css/site.css", "site.js": "assets/js/site.js"}
+ASSETS = {"site.css": "assets/css/site.css", "site.js": "assets/js/site.js",
+          # link previews: WhatsApp and the rest cache the image by its address
+          "og-image.jpg": "og-image.jpg"}
 
 stamps = {}
 for name, path in ASSETS.items():
