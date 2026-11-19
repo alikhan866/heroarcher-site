@@ -5,7 +5,7 @@ Status: **made** (2026-11-19). The finished files:
 | File | For | Shape |
 |---|---|---|
 | `trailer/build/out/trailer-1080x1920.mp4` (also in the game repo, `docs/release/store-assets/`) | TikTok, YouTube Shorts, Reels, creators | 9:16, 31.5 s, 60 fps, Emberwood music + the game's sound, captions burned in, -14 LUFS |
-| `assets/video/gameplay.mp4` + `assets/img/gameplay-poster.webp` | the site's "how it plays" figure | 1080x1180, 8.8 s, 30 fps, muted, loops without a seam |
+| `assets/video/trailer.mp4` + `assets/img/trailer-poster.webp` | the site: the "fights alone" section and the "Watch the trailer" dialog | 720x1280, 60 fps, 5 MB |
 
 Everything is real gameplay from the current build, staged with the game's own
 Scenarios tool so each shot is repeatable and only the enemies a shot asks for
@@ -61,8 +61,8 @@ trailer/unity/record.py       python trailer/unity/record.py ember frost ...
 
 ```
 python trailer/captions.py ../Evil-archer          # caption cards + end card
-python trailer/make_trailer.py ../Evil-archer      # trailer + site loop (about 3 min)
-python trailer/make_trailer.py ../Evil-archer --loop   # the site loop only
+python trailer/make_trailer.py ../Evil-archer      # trailer + the site's copy (about 3 min)
+python trailer/make_trailer.py ../Evil-archer --web    # the site's copy only
 ```
 
 `make_trailer.py` holds the cut list (take, in, out, caption) at the top. It

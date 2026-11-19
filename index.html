@@ -110,16 +110,19 @@
 
     <section class="section action" aria-labelledby="fights-alone">
       <div class="wrap action__grid">
-        <figure class="clip">
-          <video data-clip muted loop playsinline preload="none" width="1080" height="1180" poster="assets/img/gameplay-poster.webp" aria-label="An Emberwood wave closes in on the tower from every side, Arrow Rain lands on it and the archer picks off the rest">
-            <source src="assets/video/gameplay.mp4" type="video/mp4">
+        <!-- the trailer: site.js plays it silently while it is on screen (the
+             captions are burned in) and "Tap for sound" starts it over with sound;
+             without script it is a still with a play button -->
+        <figure class="clip clip--trailer">
+          <video data-trailer-inline controls playsinline preload="none" width="720" height="1280" poster="assets/img/trailer-poster.webp" aria-label="The Hero Archer trailer: goblin waves, abilities, contraptions, a boss fight and the gear your archer wears">
+            <source src="assets/video/trailer.mp4" type="video/mp4">
           </video>
           <figcaption>
-            <span>Arrow Rain on an Emberwood wave.</span>
-            <a class="watch watch--small" href="assets/video/trailer.mp4" data-trailer>
-              <span class="watch__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.2v13.6L19 12z" fill="currentColor"/></svg></span>
-              Full trailer
-            </a>
+            <span>The trailer, 0:31.</span>
+            <button class="watch watch--small" type="button" data-trailer-sound hidden>
+              <span class="watch__play watch__play--sound" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 9.5h3.6L11.5 5.6v12.8l-4.4-3.9H3.5z" fill="currentColor"/><path d="M15 9.2a4 4 0 0 1 0 5.6M17.6 6.6a7.6 7.6 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+              Tap for sound
+            </button>
           </figcaption>
         </figure>
         <div>
@@ -242,8 +245,8 @@
     </div>
   </footer>
 
-  <!-- the trailer, opened by any a[data-trailer] (site.js); without script those
-       links open the video file itself -->
+  <!-- the trailer with sound, opened by "Watch the trailer" (site.js); without
+       script that link opens the video file itself -->
   <dialog class="trailer" id="trailer" aria-label="Hero Archer trailer">
     <div class="trailer__box">
       <button class="trailer__close" type="button" data-trailer-close aria-label="Close the trailer">

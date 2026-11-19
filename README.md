@@ -15,7 +15,7 @@ delete-account/index.html  data deletion  (heroarcher.com/delete-account/)
 assets/css/site.css      all styles, mobile first
 assets/js/site.js        optional extras (see below); the page works without it
 assets/img, fonts       built from the game repo by tools/build_assets.py
-assets/video             the gameplay loop, cut by trailer/make_trailer.py
+assets/video             the trailer, cut by trailer/make_trailer.py
 trailer/                 the trailer: captions, recording driver, edit (PLAN.md)
 CNAME                    tells GitHub Pages to serve heroarcher.com
 app-ads.txt              AdMob publisher declaration
@@ -54,11 +54,10 @@ https://play.google.com/intl/en_us/badges/ and is not generated. When it is
 used, the footer line "Google Play and the Google Play logo are trademarks of
 Google LLC." has to stay.
 
-The "how it plays" section is a muted 9-second loop,
-`assets/video/gameplay.mp4` (1080x1180, 30 fps, about 1.6 MB) with
-`assets/img/gameplay-poster.webp`. Both are cut from the trailer recording by
-`trailer/make_trailer.py`; `trailer/PLAN.md` says how that recording is made.
-`site.js` plays the loop only while it is on screen.
+The "Your archer fights alone" section shows the trailer,
+`assets/video/trailer.mp4` (720x1280, 60 fps, 5 MB) with
+`assets/img/trailer-poster.webp`, cut by `trailer/make_trailer.py --web` from
+the trailer recording; `trailer/PLAN.md` says how that recording is made.
 
 ## What site.js does
 
@@ -76,15 +75,17 @@ The "how it plays" section is a muted 9-second loop,
 2. **iPhone visitors** see a line saying the game is Android only for now.
    Remove the `.ios-note` paragraph in `index.html` once the App Store version
    is out, and add an App Store link next to the Play one.
-3. **The gameplay loop** (see above) plays only while it is on screen, and
-   shows controls instead of autoplaying for people who ask for reduced motion.
-4. **The trailer.** "Watch the trailer" (under the Play button, and under the
-   loop) opens `assets/video/trailer.mp4` (720x1280, 5 MB, cut by
-   `trailer/make_trailer.py --web`) in a dialog, with sound and a Play button
-   under it (`utm_content=trailer`). After the page has loaded and the browser
-   is idle, the file is fetched in the background so a tap starts it at once;
-   the page never waits for it. Only Data Saver and real 2G skip the download
-   (Chrome reports "3g" from latency alone, so that is not a reason to skip). Without the script the links open the file itself.
+3. **The trailer**, in two places. In the "fights alone" section it plays
+   silently while it is on screen (the captions are burned in) and "Tap for
+   sound", or a tap on the video, starts it over with sound and controls.
+   "Watch the trailer" under the Play button opens it with sound in a dialog,
+   with a Play button under it (`utm_content=trailer`). After the page has
+   loaded and the browser is idle, the file is fetched in the background so
+   both start at once; the page never waits for it. Visitors on Data Saver or
+   real 2G skip the download and get a play button instead of the silent
+   preview (Chrome reports "3g" from latency alone, so that is no reason to
+   skip), as do people who ask for reduced motion. Without the script the
+   section is a still with a play button and the link opens the file itself.
 
 ## Domain setup (GoDaddy)
 

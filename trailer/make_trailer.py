@@ -1,7 +1,7 @@
-"""Cut the Hero Archer trailer and the site's gameplay loop from the recorded takes.
+"""Cut the Hero Archer trailer, and the copy the site plays, from the recorded takes.
 
-    python trailer/make_trailer.py [path-to-game-repo] [--loop] [--web]
-        --loop  the site loop only    --web  the site's trailer copy only (from the last edit)
+    python trailer/make_trailer.py [path-to-game-repo] [--web]
+        --web  the site's copy only, from the last edit
 
 Reads trailer/build/takes/<take>/ (frames, taps.txt, events.txt from
 trailer/unity/record.py) and trailer/build/cards/ (captions.py), and writes:
@@ -9,8 +9,6 @@ trailer/unity/record.py) and trailer/build/cards/ (captions.py), and writes:
     trailer/build/out/trailer-1080x1920.mp4   9:16, 60 fps, music + game sound, captions
     assets/video/trailer.mp4                  the site's copy, 720x1280, about 5 MB
     assets/img/trailer-poster.webp            its poster (the first frame)
-    assets/video/gameplay.mp4                 the site's muted loop, 1080x1180
-    assets/img/gameplay-poster.webp           its poster frame
 
 The game's sound is rebuilt from its own clips at the frames the takes logged
 (AudioRenderer gives nothing in the editor): every bow shot, death cry, zap,
@@ -70,11 +68,6 @@ END_FRAMES = 210        # the end card, 3.5 s
 END_XFADE = 18          # last shot dissolves into it
 CAPTION_FADE = 6
 
-# the site loop: Emberwood, crowd to Arrow Rain to the fight. The field only:
-# below the pause button and wave header, above the ability bar, scaled to the
-# figure's 1080x1180
-LOOP = ("ember", 0, 560, (25, 130, 1055, 1255), 30)  # take, in, out, crop box, xfade frames
-LOOP_SIZE = (1080, 1180)
 
 # ---------------------------------------------------------------- helpers
 
@@ -370,41 +363,9 @@ def encode_web(wav):
     return out
 
 
-def build_loop():
-    take, a, b, box, xf = LOOP
-    tmp = os.path.join(HERE, "build", "loop")
-    if os.path.isdir(tmp):
-        shutil.rmtree(tmp)
-    os.makedirs(tmp)
-    # 30 fps for the page: every other frame; the last xf frames dissolve into the
-    # first ones, so the loop has no seam
-    src = list(range(a, b, 2))
-    xf //= 2
-    body = src[xf:]
-    for i, n in enumerate(body):
-        im = frame(take, n).crop(box).resize(LOOP_SIZE, Image.LANCZOS)
-        j = i - (len(body) - xf)
-        if j >= 0:
-            im = Image.blend(im, frame(take, src[j]).crop(box).resize(LOOP_SIZE, Image.LANCZOS), ease((j + 1) / (xf + 1)))
-        im.save(os.path.join(tmp, "%05d.jpg" % i), quality=92)
-    vid = os.path.join(SITE, "assets", "video")
-    os.makedirs(vid, exist_ok=True)
-    out = os.path.join(vid, "gameplay.mp4")
-    subprocess.run([FF, "-v", "error", "-y", "-framerate", "30", "-i", os.path.join(tmp, "%05d.jpg"),
-                    "-vf", VF, "-c:v", "libx264", "-preset", "slow", "-crf", "28", "-profile:v", "high", *TAGS,
-                    "-an", "-movflags", "+faststart", out], check=True)
-    # the poster: the crowd bunching as the rain lands
-    poster = frame(take, 172).crop(box).resize(LOOP_SIZE, Image.LANCZOS)
-    poster.save(os.path.join(SITE, "assets", "img", "gameplay-poster.webp"), quality=82, method=6)
-    return out
-
-
 if __name__ == "__main__":
-    if "--loop" in sys.argv or "--web" in sys.argv:
-        if "--loop" in sys.argv:
-            print(" ", build_loop())
-        if "--web" in sys.argv:
-            print(" ", encode_web(os.path.join(EDIT, "mix.wav")))
+    if "--web" in sys.argv:
+        print(" ", encode_web(os.path.join(EDIT, "mix.wav")))
         sys.exit()
     print("frames")
     timeline, total, shots = build_frames()
@@ -413,5 +374,3 @@ if __name__ == "__main__":
     print("encode")
     print(" ", encode_trailer(wav))
     print(" ", encode_web(wav))
-    print("loop")
-    print(" ", build_loop())

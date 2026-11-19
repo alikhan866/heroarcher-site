@@ -322,12 +322,15 @@ h1, h2, h3 { font-weight: 400; }
   border: 2px solid var(--border);
   background: var(--panel-inset);
   color: var(--text);
+  font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 700;
   white-space: nowrap;
   text-decoration: none;
+  cursor: pointer;
   transition: border-color .15s ease, background-color .15s ease;
 }
+.watch[hidden] { display: none; }
 .watch:hover { border-color: var(--gold); background: var(--panel); color: var(--text); }
 .watch:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 3px; }
 .watch__play {
@@ -345,6 +348,7 @@ h1, h2, h3 { font-weight: 400; }
 .watch--small { min-height: 44px; padding: 5px 14px 5px 6px; font-size: .875rem; }
 .watch--small .watch__play { width: 30px; height: 30px; }
 .watch--small .watch__play svg { width: 14px; height: 14px; }
+.watch--small .watch__play--sound svg { width: 18px; height: 18px; margin-left: 0; }
 
 /* ---------- the trailer dialog ---------- */
 
@@ -489,6 +493,10 @@ html:has(.trailer[open]) { overflow: hidden; }
   border-radius: 14px;
   background: var(--panel-inset);
 }
+/* the trailer is 9:16: as wide as fits, but never taller than the screen
+   (the 24px is the frame's padding and border) */
+.clip--trailer { max-width: min(380px, calc((100svh - 110px) * 9 / 16 + 24px)); }
+.clip--trailer video { aspect-ratio: 9 / 16; object-fit: contain; background: #000; }
 .clip figcaption {
   display: flex;
   flex-wrap: wrap;
@@ -853,6 +861,7 @@ html:has(.trailer[open]) { overflow: hidden; }
     align-items: center;
   }
   .clip { max-width: none; }
+  .clip--trailer { max-width: min(400px, calc((100svh - 120px) * 9 / 16 + 24px)); justify-self: center; }
 
   .final__grid {
     grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
