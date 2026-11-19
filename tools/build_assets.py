@@ -87,13 +87,6 @@ for src, name in [("02_lightning", "shot-lightning"), ("04_boss", "shot-boss"),
     webp(im, name + "-720", 720, quality=80)
     webp(im, name + "-360", 360, quality=80)
 
-# The "how it plays" still: the Frostpeak Arrow Rain battlefield, framed like
-# the old clip (top of the screen down to the ability bar). It stands in until
-# a new gameplay recording replaces it.
-im = Image.open(game("docs", "release", "store-assets", "v25", "03_rain.png")).convert("RGB")
-im = im.crop((0, 336, 1080, 336 + 1180))
-webp(im, "battle-frostpeak-1080", quality=80)
-webp(im, "battle-frostpeak-540", 540, quality=80)
 
 for src, name in [("ability_arrow_rain", "ico-arrow-rain"), ("icon_workshop", "ico-workshop"),
                   ("icon_chest", "ico-chest"), ("icon_trophy", "ico-trophy")]:
@@ -156,7 +149,6 @@ out = os.path.join(FONTS, "lilita-one.woff2")
 font.save(out)
 print(f"  lilita-one.woff2  {os.path.getsize(out) // 1024} KB")
 
-# No video for now: the old store recording (gameplay-1080x1920.mp4) shows
-# enemies that should not be in that wave. A new recording will bring the clip
-# back, as assets/video/gameplay.mp4 with a poster, into the .clip figure.
+# The "how it plays" loop (assets/video/gameplay.mp4) and its poster come from
+# the trailer recording: trailer/make_trailer.py, see trailer/PLAN.md.
 print("done")

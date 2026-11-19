@@ -14,7 +14,9 @@ delete-account/index.html  data deletion  (heroarcher.com/delete-account/)
 404.html                 not-found page
 assets/css/site.css      all styles, mobile first
 assets/js/site.js        optional extras (see below); the page works without it
-assets/img, fonts, video built from the game repo by tools/build_assets.py
+assets/img, fonts       built from the game repo by tools/build_assets.py
+assets/video             the gameplay loop, cut by trailer/make_trailer.py
+trailer/                 the trailer: captions, recording driver, edit (PLAN.md)
 CNAME                    tells GitHub Pages to serve heroarcher.com
 app-ads.txt              AdMob publisher declaration
 robots.txt, sitemap.xml, site.webmanifest, favicons, og-image.jpg
@@ -52,20 +54,11 @@ https://play.google.com/intl/en_us/badges/ and is not generated. When it is
 used, the footer line "Google Play and the Google Play logo are trademarks of
 Google LLC." has to stay.
 
-The "how it plays" section shows a still (Arrow Rain in Frostpeak) for now.
-The old store recording, `docs/release/store-assets/gameplay-1080x1920.mp4`,
-has enemies in it that do not belong in that wave, so it is not used. When a
-new recording exists, put a short muted loop in `assets/video/gameplay.mp4`
-and swap the `<img>` in the `.clip` figure for:
-
-```html
-<video data-clip muted loop playsinline preload="none" width="540" height="590"
-       poster="assets/img/gameplay-poster.webp" aria-label="...">
-  <source src="assets/video/gameplay.mp4" type="video/mp4">
-</video>
-```
-
-`site.js` already plays it only while it is on screen.
+The "how it plays" section is a muted 9-second loop,
+`assets/video/gameplay.mp4` (1080x1180, 30 fps, about 1.6 MB) with
+`assets/img/gameplay-poster.webp`. Both are cut from the trailer recording by
+`trailer/make_trailer.py`; `trailer/PLAN.md` says how that recording is made.
+`site.js` plays the loop only while it is on screen.
 
 ## What site.js does
 

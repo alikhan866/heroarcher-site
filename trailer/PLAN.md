@@ -1,69 +1,75 @@
 # Hero Archer trailer
 
-Status: **waiting on the balance sweep** (`fullgame_19_11_2026`, running in the
-open editor). Recording needs new dev scripts, and adding scripts recompiles the
-editor and would kill the sweep. Everything below that does not need Unity is
-ready.
-
-## What gets made
+Status: **made** (2026-11-19). The finished files:
 
 | File | For | Shape |
 |---|---|---|
-| `trailer-1080x1920.mp4` | TikTok, YouTube Shorts, Reels, creators, the site | 9:16, ~35 s, game music + game sound, subtitles burned in |
-| `gameplay-loop.mp4` | the site's "how it plays" figure | 1080x1180 crop, ~10 s, muted, no subtitles, loops cleanly |
+| `trailer/build/out/trailer-1080x1920.mp4` (also in the game repo, `docs/release/store-assets/`) | TikTok, YouTube Shorts, Reels, creators | 9:16, 31.5 s, 60 fps, Emberwood music + the game's sound, captions burned in, -14 LUFS |
+| `assets/video/gameplay.mp4` + `assets/img/gameplay-poster.webp` | the site's "how it plays" figure | 1080x1180, 8.8 s, 30 fps, muted, loops without a seam |
 
-Both come from one recording session. A 16:9 cut for a YouTube / Play listing
-video can be made from the same footage later.
+Everything is real gameplay from the current build, staged with the game's own
+Scenarios tool so each shot is repeatable and only the enemies a shot asks for
+appear. A finger ring marks every tap; nothing on screen happens without one
+except the archer, the contraptions and the enemies.
 
-## Shot list
+## The cut
 
-Captions are rendered by `captions.py` (gold Lilita One headline, cream
-Baloo 2 line, the store screenshots' style). Every shot is staged with the
-game's Scenarios tool (`Tools > Scenarios`, `TestScenario`), so it is
-repeatable and nothing wanders in that should not be there.
+| Time | Footage | Caption |
+|---|---|---|
+| 0:00 | Emberwood: goblin groups close in on the tower from every side | THE FOREST IS CRAWLING |
+| 0:02.5 | No taps: the archer picks off a steady stream, coins tick up per kill | YOUR ARCHER FIGHTS ALONE / Every kill pays coins |
+| 0:06 | Damage bought twice in the run panel, 8.7 to 9.9 | SPEND THEM / Damage first is never wrong |
+| 0:08 | Arrow Rain on the bunched crowd; Frostpeak: Frost Snare, Lightning on a yeti, Poison Cloud | EIGHT ABILITIES / Pick your moment |
+| 0:12 | Storm Rod arcing down a column of the dead; Ballista spear through a line of goblins | ONE CONTRAPTION PER RUN / Storm Rod, Ballista, Barracks and more |
+| 0:15 | Boss Ogre: SLAM windup, Mega Gust, BROKEN, Lightning kills it | EVERY 5TH WAVE, A BOSS / Break the windup before the axe falls |
+| 0:18 | Its drop, a Great Helm, picked up and worn on the deck (push in); the gear screen, a set cloak equipped | DRESS YOUR ARCHER / Boss loot shows up on your archer |
+| 0:23 | Frostpeak blizzard, a Mummy Brute rising again, Cinderdeep magma hounds, the Nightmare lap | FOUR LANDS, 50 WAVES EACH / Then the Nightmare lap |
+| 0:28 | End card: logo, the archer on the tower, dusk valley | GOOD HUNTING, HERO / Free on Google Play |
 
-| # | Time | On screen | Staging | Caption |
-|---|---|---|---|---|
-| 1 | 0:00 | A goblin wave closes on the tower from every side; Arrow Rain lands as they bunch up | Emberwood, wave ~20, natural waves, infinite energy, Arrow Rain at 1.5 s | THE FOREST IS CRAWLING |
-| 2 | 0:03 | The archer firing on their own, goblins dropping, the coin counter climbing | same take, later | YOUR ARCHER FIGHTS ALONE / Every kill pays coins |
-| 3 | 0:07 | Damage bought twice in the run panel; the damage numbers jump | director buys Damage x2 | SPEND THEM / Damage first is never wrong |
-| 4 | 0:10 | Frost Snare locks a pack, Lightning Strike, then Poison Cloud | Frostpeak, a big pack, infinite energy | EIGHT ABILITIES / Pick your moment |
-| 5 | 0:15 | Storm Rod arcing down a column of raiders; a Ballista bolt through a line | Necropolis with the Storm Rod perk; second take with Ballista Frame | ONE CONTRAPTION PER RUN / Storm Rod, Ballista, Barracks and more |
-| 6 | 0:19 | Boss ogre walks in and winds up; Mega Gust shoves it and breaks the windup | Emberwood wave 5, one Boss spawn, Mega Gust during the windup | EVERY 5TH WAVE, A BOSS / Break the windup before the axe falls |
-| 7 | 0:24 | The boss drops gear; cut to the gear screen with the archer wearing it | boss kill take + gear screen | DRESS YOUR ARCHER / Boss loot shows up on your archer |
-| 8 | 0:27 | Three quick cuts: a Frostpeak blizzard, the Necropolis dead getting back up, Cinderdeep lava wolves | three short takes | FOUR LANDS, 50 WAVES EACH / Then the Nightmare lap |
-| 9 | 0:31 | End card: logo, the archer on the tower, dusk valley | `09_end.png` | GOOD HUNTING, HERO / Free on Google Play |
+## How it was recorded
 
-Music: `Assets/Audio/Music/music_ch1_emberwood.wav` under everything, faded
-out over the end card; the game's own sound effects from the recording,
-mixed under it. Most people watch these muted, so the captions carry it.
+Nothing was added to the game project. The open editor is driven through the
+MCP-for-Unity bridge (`http://127.0.0.1:8080/mcp`, its `execute_code` tool,
+which compiles C# 6 in memory), so there is no recompile and nothing to commit
+in the game repo.
 
-## Recording, once the sweep is done
+```
+trailer/unity/takes.py        every take: staging (a TestScenario), per-frame keepers, cues
+trailer/unity/driver.cs.tmpl  the per-take coroutine: capture, taps, sound events
+trailer/unity/record.py       python trailer/unity/record.py ember frost ...
+```
 
-1. **Unity MCP for this folder.** The bridge (`http://127.0.0.1:8080/mcp`) is
-   registered in `~/.claude.json` under the project's old path,
-   `C:/Users/HP/Evil-archer`, so sessions opened in `Desktop/Evil-archer` do
-   not get it. Register it again for the new path and start a new session.
-2. **Recorder.** Add Unity Recorder (`com.unity.recorder`, editor only, never
-   ships in a build) and record the Game view at 1080x1920, 60 fps, with audio.
-3. **Director.** A dev-only script in `Assets/Dev` that, per shot, starts the
-   shot's TestScenario and fires abilities, buys upgrades and spawns the boss
-   on cue, so every take is the same and abilities land when the crowd is
-   tight. One scenario asset per shot in `Assets/Dev/Scenarios/Trailer/`.
-4. Record every shot with a second of handle on each side. Watch for enemies
-   from another chapter turning up: the old store clip had them, and if the
-   current build does it too, that is a game bug.
-5. Back up the save family before play, restore it after (CLAUDE.md lists the
-   files and PlayerPrefs keys).
+- **Picture.** `Time.captureDeltaTime` fixes the game clock at 1/60 s a frame
+  and the editor is paced at 60 fps, so what the game animates on unscaled time
+  (damage numbers, button squash, camera shake) keeps its real speed. Frames go
+  screen -> RenderTexture -> AsyncGPUReadback -> JPEG on a worker thread.
+  The Game view is switched to 1080x1920 for the session and back to the
+  Simulator after.
+- **Sound.** `AudioRenderer` returns no samples in this editor, so each take
+  logs its sound events (bow shots, death cries by voice family, zaps, ballista,
+  gear drop, pickup and equip, plus every tap) and `make_trailer.py` rebuilds
+  the track from the game's own clips at the game's volumes and +/-8% pitch.
+  The announcer says each ability's name, as in the game.
+- **A veteran player.** `GameManager.Awake` reloads the save from disk on every
+  scene load, so the takes write one save (tutorial done, everything unlocked,
+  codex seen) and keep saving off otherwise. The save family is deleted after
+  the session, as CLAUDE.md asks. HUD callout cards are held back during takes.
+- Requirements: the editor in play mode, the Game view visible, and the bridge
+  running (Window > MCP for Unity).
 
 ## Editing
 
-`make_trailer.py` (next) trims the takes, overlays the caption cards with short
-fades, lays the music under the game audio, adds the end card and exports both
-files with ffmpeg (the copy bundled with imageio-ffmpeg has libass,
-freetype and xfade).
+```
+python trailer/captions.py ../Evil-archer          # caption cards + end card
+python trailer/make_trailer.py ../Evil-archer      # trailer + site loop (about 3 min)
+python trailer/make_trailer.py ../Evil-archer --loop   # the site loop only
+```
 
-```
-python trailer/captions.py ../Evil-archer   # caption cards + preview
-python trailer/make_trailer.py               # after recording
-```
+`make_trailer.py` holds the cut list (take, in, out, caption) at the top. It
+draws the tap rings, the push in on the helm, the caption fades, the end card
+dissolve, mixes the rebuilt sound under `music_ch1_emberwood.wav` (at the
+game's 0.55) and normalises to -14 LUFS. Output is limited-range BT.709
+yuv420p H.264, which every platform and browser plays as intended.
+
+A 16:9 cut for a YouTube or Play listing video can come from the same takes:
+the field is the top 1260 px of every frame.

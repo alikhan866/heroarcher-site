@@ -1,0 +1,269 @@
+// Trailer take driver. Runs inside the Unity editor through the MCP bridge's
+// execute_code (CodeDom, C# 6, a method body), so nothing is added to the game
+// project and nothing recompiles. trailer/unity/record.py fills the @@ slots.
+//
+// One coroutine, built from a LINQ enumerator (C# 6 has no local iterators),
+// runs on a DontDestroyOnLoad host; every step after the first runs at END OF
+// FRAME, where the screen can be captured.
+//
+// Picture: Time.captureDeltaTime fixes the game clock at 1/60 s a frame, and
+// the editor is paced at 60 fps so the things the game animates on unscaled
+// time (damage numbers, button squash, camera shake) keep their real speed.
+// To keep that pace the capture is asynchronous: screen -> RenderTexture ->
+// AsyncGPUReadback -> JPEG on a worker thread.
+//
+// Sound: AudioRenderer returns nothing in this editor, so the game's sound is
+// logged as events instead (events.txt: frame, what, detail) and rebuilt from
+// the game's own clips in the edit.
+string take = "@@TAKE@@";
+int settleFrames = @@SETTLE@@;
+int lengthFrames = @@LENGTH@@;
+string outDir = "@@OUTDIR@@/" + take;
+if (System.IO.Directory.Exists(outDir))
+    foreach (var old in System.IO.Directory.GetFiles(outDir)) System.IO.File.Delete(old);
+System.IO.Directory.CreateDirectory(outDir);
+
+DevFlags.NoSave = true;
+
+var hostGo = GameObject.Find("TrailerHost");
+if (hostGo == null)
+{
+    hostGo = new GameObject("TrailerHost");
+    UnityEngine.Object.DontDestroyOnLoad(hostGo);
+    hostGo.AddComponent<UnityEngine.EventSystems.EventTrigger>();
+}
+var host = hostGo.GetComponent<UnityEngine.EventSystems.EventTrigger>();
+host.StopAllCoroutines();
+
+int phase = 0, wait = 0, f = 0, readyWait = 0, drain = 0;
+int[] counts = new int[3]; // [0] readbacks in flight + encodes queued, [1] written, [2] errors
+var taps = new System.Text.StringBuilder();
+var events = new System.Text.StringBuilder();
+var notes = new System.Text.StringBuilder();
+var eof = new WaitForEndOfFrame();
+var bf = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public;
+int W = Screen.width, H = Screen.height;
+RenderTexture rt = null;
+int savedTarget = Application.targetFrameRate, savedVsync = QualitySettings.vSyncCount;
+var clock = new System.Diagnostics.Stopwatch();
+var frameMs = new System.Collections.Generic.List<float>();
+
+// sound-event state
+var aliveLast = new System.Collections.Generic.HashSet<Enemy>();
+var voiceF = typeof(Enemy).GetField("voice", bf);
+var shootAtF = typeof(TowerArcher).GetField("shootAt", bf);
+var zapF = typeof(StormRod).GetField("zapCo", bf);
+var reloadF = typeof(BallistaFrame).GetField("reloadCo", bf);
+float lastShootAt = -1f; object lastZap = null, lastReload = null; int lastWave = -1, lastDrops = -1, lastGuards = -1;
+
+// press a button the way a finger would, and log where for the tap ring
+System.Action<UnityEngine.UI.Button> press = b =>
+{
+    var cv = b.GetComponentInParent<Canvas>();
+    Camera cam = cv != null && cv.rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay ? cv.rootCanvas.worldCamera : null;
+    var sp = RectTransformUtility.WorldToScreenPoint(cam, ((RectTransform)b.transform).position);
+    taps.AppendLine((f + 1) + " " + Mathf.RoundToInt(sp.x) + " " + Mathf.RoundToInt(H - sp.y) + " " + b.gameObject.name + " " + b.interactable);
+    b.onClick.Invoke();
+};
+System.Action<string> tap = name =>
+{
+    foreach (var b in UnityEngine.Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsSortMode.None))
+        if (b.gameObject.name == name && b.gameObject.activeInHierarchy) { press(b); return; }
+    notes.AppendLine("tap: no button " + name + " at frame " + f);
+};
+// a button by its label ("EQUIP")
+System.Action<string> tapLabel = label =>
+{
+    foreach (var b in UnityEngine.Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsSortMode.None))
+    {
+        if (!b.gameObject.activeInHierarchy) continue;
+        var t = b.GetComponentInChildren<TMPro.TMP_Text>();
+        if (t != null && t.text.Trim().ToUpper() == label) { press(b); return; }
+    }
+    notes.AppendLine("tap: no button labelled " + label + " at frame " + f);
+};
+System.Action<string> mark = what => events.AppendLine((f + 1) + " " + what);
+// a finger on the battlefield (a gear drop): log the ring at a world position
+System.Action<Vector3, string> tapWorld = (world, label) =>
+{
+    var cam = Camera.main;
+    if (cam == null) return;
+    var sp = cam.WorldToScreenPoint(world);
+    taps.AppendLine((f + 1) + " " + Mathf.RoundToInt(sp.x) + " " + Mathf.RoundToInt(H - sp.y) + " " + label + " True");
+};
+var st = new int[16];          // per-take cue state (frames, flags)
+var keepObj = new object[4];   // per-take cue state (objects)
+
+System.Action keep = () =>
+{
+    var gm = GameManager.I;
+    if (ScenarioRunner.I != null && ScenarioRunner.I.enabled) ScenarioRunner.I.enabled = false; // its panel and target marker are IMGUI on the game view
+    if (GameAudio.I != null)
+        foreach (var src in GameAudio.I.GetComponents<AudioSource>()) if (src.loop) src.mute = true;
+    if (gm != null && gm.Playing && gm.PendingPerkPicks == 0 && Time.timeScale > 0f && Time.timeScale != 1f) Time.timeScale = 1f;
+    // no HUD callout cards (first-meet traits, chapter rules, unlocks) over the shots:
+    // "showing" stays set so no new card starts, the queue is emptied, the panel hidden
+    var hud = BattleHudV2.I;
+    if (hud != null)
+    {
+        typeof(BattleHudV2).GetField("calloutShowing", bf).SetValue(hud, true);
+        var q = typeof(BattleHudV2).GetField("calloutQueue", bf).GetValue(hud);
+        if (q != null) q.GetType().GetMethod("Clear").Invoke(q, null);
+        var co = typeof(BattleHudV2).GetField("callout", bf).GetValue(hud) as Component;
+        if (co != null && co.gameObject.activeSelf) co.gameObject.SetActive(false);
+    }
+    @@KEEP@@
+};
+
+System.Action poll = () =>
+{
+    var gm = GameManager.I;
+    var now = new System.Collections.Generic.HashSet<Enemy>();
+    foreach (var e in Enemy.Active)
+    {
+        if (e == null || !e.gameObject.activeInHierarchy) continue;
+        if (e.Alive) now.Add(e);
+    }
+    foreach (var e in now)
+        if (!aliveLast.Contains(e) && e.isBoss) events.AppendLine(f + " boss");
+    foreach (var e in aliveLast)
+        if (!now.Contains(e) && (e == null || !e.Rising))
+            events.AppendLine(f + " death " + (e != null && voiceF != null ? voiceF.GetValue(e).ToString() : "Goblin") + (e != null && e.isBoss ? " boss" : ""));
+    aliveLast = now;
+    var arch = UnityEngine.Object.FindFirstObjectByType<TowerArcher>();
+    if (arch != null && shootAtF != null)
+    {
+        float s = (float)shootAtF.GetValue(arch);
+        if (s != lastShootAt && lastShootAt >= 0f) events.AppendLine(f + " shot");
+        lastShootAt = s;
+    }
+    var rod = UnityEngine.Object.FindFirstObjectByType<StormRod>();
+    if (rod != null && zapF != null) { var z = zapF.GetValue(rod); if (z != null && !object.ReferenceEquals(z, lastZap)) events.AppendLine(f + " zap"); lastZap = z; }
+    var bal = UnityEngine.Object.FindFirstObjectByType<BallistaFrame>();
+    if (bal != null && reloadF != null) { var r = reloadF.GetValue(bal); if (r != null && !object.ReferenceEquals(r, lastReload)) events.AppendLine(f + " ballista"); lastReload = r; }
+    if (gm != null && gm.waves != null) { if (lastWave >= 0 && gm.waves.Wave != lastWave) events.AppendLine(f + " wave " + gm.waves.Wave); lastWave = gm.waves.Wave; }
+    int drops = UnityEngine.Object.FindObjectsByType<GearDrop>(FindObjectsSortMode.None).Length;
+    if (lastDrops >= 0 && drops > lastDrops) events.AppendLine(f + " geardrop");
+    if (lastDrops >= 0 && drops < lastDrops) events.AppendLine(f + " gearpick");
+    lastDrops = drops;
+    int guards = Guard.Active != null ? Guard.Active.Count : 0;
+    if (lastGuards >= 0 && guards > lastGuards) events.AppendLine(f + " muster");
+    lastGuards = guards;
+};
+
+System.Func<bool> ready = () =>
+{
+    var gm = GameManager.I;
+    @@READY@@
+};
+
+System.Action<int> cue = frame =>
+{
+    var gm = GameManager.I;
+    @@CUES@@
+};
+
+System.Action restore = () =>
+{
+    Time.captureDeltaTime = 0f;
+    Application.targetFrameRate = savedTarget;
+    QualitySettings.vSyncCount = savedVsync;
+};
+
+System.Action finish = () =>
+{
+    restore();
+    if (rt != null) { rt.Release(); rt = null; }
+    frameMs.Sort();
+    string pace = frameMs.Count > 0 ? "frame ms median " + frameMs[frameMs.Count / 2].ToString("F1") + " p90 " + frameMs[frameMs.Count * 9 / 10].ToString("F1") + " max " + frameMs[frameMs.Count - 1].ToString("F1") : "";
+    System.IO.File.WriteAllText(outDir + "/taps.txt", taps.ToString());
+    System.IO.File.WriteAllText(outDir + "/events.txt", events.ToString());
+    System.IO.File.WriteAllText(outDir + "/meta.txt",
+        "frames " + f + "\nfps 60\nsize " + W + "x" + H + "\nwritten " + counts[1] + " errors " + counts[2] + "\n" + pace + "\n" + notes.ToString());
+    System.IO.File.WriteAllText(outDir + "/done.txt", "ok");
+};
+
+var steps = System.Linq.Enumerable.Range(0, 2000000).Select(i =>
+{
+    try
+    {
+        keep();
+        if (phase == 0)
+        {
+            if (++readyWait > 60 * 60 * 3) { notes.AppendLine("never ready"); finish(); return null; }
+            if (ready()) phase = 1;
+            return (object)eof;
+        }
+        if (phase == 1)
+        {
+            if (++wait < settleFrames) return (object)eof;
+            rt = new RenderTexture(W, H, 0, RenderTextureFormat.ARGB32);
+            rt.Create();
+            Time.captureDeltaTime = 1f / 60f;
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = 60;
+            phase = 2; f = 0;
+            poll();
+            events.Length = 0;
+            cue(-1);
+            clock.Start();
+            return (object)eof;
+        }
+        if (phase == 3)
+        {
+            // the last readbacks and encodes finish on their own; wait for them
+            if (System.Threading.Interlocked.CompareExchange(ref counts[0], 0, 0) > 0 && ++drain < 600) return (object)eof;
+            finish();
+            return null;
+        }
+        // phase 2: this is the end of frame f
+        frameMs.Add((float)clock.Elapsed.TotalMilliseconds);
+        clock.Reset(); clock.Start();
+        ScreenCapture.CaptureScreenshotIntoRenderTexture(rt);
+        int idx = f;
+        string path = outDir + "/f_" + idx.ToString("D5") + ".jpg";
+        System.Threading.Interlocked.Increment(ref counts[0]);
+        UnityEngine.Rendering.AsyncGPUReadback.Request(rt, 0, TextureFormat.RGBA32, req =>
+        {
+            if (req.hasError) { System.Threading.Interlocked.Increment(ref counts[2]); System.Threading.Interlocked.Decrement(ref counts[0]); return; }
+            byte[] px = req.GetData<byte>().ToArray();
+            System.Threading.ThreadPool.QueueUserWorkItem(o =>
+            {
+                try
+                {
+                    int stride = W * 4;
+                    if (@@FLIP@@)
+                    {
+                        var row = new byte[stride];
+                        for (int y = 0; y < H / 2; y++)
+                        {
+                            System.Buffer.BlockCopy(px, y * stride, row, 0, stride);
+                            System.Buffer.BlockCopy(px, (H - 1 - y) * stride, px, y * stride, stride);
+                            System.Buffer.BlockCopy(row, 0, px, (H - 1 - y) * stride, stride);
+                        }
+                    }
+                    var jpg = ImageConversion.EncodeArrayToJPG(px, UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_UNorm, (uint)W, (uint)H, 0, 94);
+                    System.IO.File.WriteAllBytes(path, jpg);
+                    System.Threading.Interlocked.Increment(ref counts[1]);
+                }
+                catch { System.Threading.Interlocked.Increment(ref counts[2]); }
+                finally { System.Threading.Interlocked.Decrement(ref counts[0]); }
+            });
+        });
+        poll();
+        cue(f);
+        f++;
+        if (f >= lengthFrames) { restore(); phase = 3; }
+        return (object)eof;
+    }
+    catch (System.Exception e)
+    {
+        notes.AppendLine("ERROR " + e);
+        Debug.LogError("[Trailer] " + e);
+        try { finish(); } catch { }
+        return null;
+    }
+}).TakeWhile(o => o != null);
+
+host.StartCoroutine(steps.GetEnumerator());
+return "take " + take + " armed: settle " + settleFrames + ", " + lengthFrames + " frames -> " + outDir;
