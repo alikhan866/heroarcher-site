@@ -76,9 +76,15 @@ The "how it plays" section is a muted 9-second loop,
 2. **iPhone visitors** see a line saying the game is Android only for now.
    Remove the `.ios-note` paragraph in `index.html` once the App Store version
    is out, and add an App Store link next to the Play one.
-3. **A gameplay clip**, when there is one (see above), plays only while it is
-   on screen, and shows controls instead of autoplaying for people who ask
-   for reduced motion.
+3. **The gameplay loop** (see above) plays only while it is on screen, and
+   shows controls instead of autoplaying for people who ask for reduced motion.
+4. **The trailer.** "Watch the trailer" (under the Play button, and under the
+   loop) opens `assets/video/trailer.mp4` (720x1280, 5 MB, cut by
+   `trailer/make_trailer.py --web`) in a dialog, with sound and a Play button
+   under it (`utm_content=trailer`). After the page has loaded and the browser
+   is idle, the file is fetched in the background so a tap starts it at once;
+   the page never waits for it, and visitors on Data Saver or 2G/3G are not
+   made to download it. Without the script the links open the file itself.
 
 ## Domain setup (GoDaddy)
 

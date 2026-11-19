@@ -1,11 +1,14 @@
 """Cut the Hero Archer trailer and the site's gameplay loop from the recorded takes.
 
-    python trailer/make_trailer.py [path-to-game-repo] [--loop]   (--loop: the site loop only)
+    python trailer/make_trailer.py [path-to-game-repo] [--loop] [--web]
+        --loop  the site loop only    --web  the site's trailer copy only (from the last edit)
 
 Reads trailer/build/takes/<take>/ (frames, taps.txt, events.txt from
 trailer/unity/record.py) and trailer/build/cards/ (captions.py), and writes:
 
     trailer/build/out/trailer-1080x1920.mp4   9:16, 60 fps, music + game sound, captions
+    assets/video/trailer.mp4                  the site's copy, 720x1280, about 5 MB
+    assets/img/trailer-poster.webp            its poster (the first frame)
     assets/video/gameplay.mp4                 the site's muted loop, 1080x1180
     assets/img/gameplay-poster.webp           its poster frame
 
@@ -353,6 +356,20 @@ def encode_trailer(wav):
     return out
 
 
+def encode_web(wav):
+    """The trailer for the page: 720x1280, still 60 fps (the fights smear at 30), about 5 MB."""
+    vid = os.path.join(SITE, "assets", "video")
+    os.makedirs(vid, exist_ok=True)
+    out = os.path.join(vid, "trailer.mp4")
+    vf = VF.replace("scale=", "scale=720:1280:flags=lanczos:", 1)
+    subprocess.run([FF, "-v", "error", "-y", "-framerate", str(FPS), "-i", os.path.join(EDIT, "%05d.jpg"), "-i", wav,
+                    "-vf", vf, "-c:v", "libx264", "-preset", "slow", "-crf", "26", "-profile:v", "high", *TAGS,
+                    "-c:a", "aac", "-b:a", "128k", "-shortest", "-movflags", "+faststart", out], check=True)
+    Image.open(os.path.join(EDIT, "00000.jpg")).resize((720, 1280), Image.LANCZOS).save(
+        os.path.join(SITE, "assets", "img", "trailer-poster.webp"), quality=80, method=6)
+    return out
+
+
 def build_loop():
     take, a, b, box, xf = LOOP
     tmp = os.path.join(HERE, "build", "loop")
@@ -383,8 +400,11 @@ def build_loop():
 
 
 if __name__ == "__main__":
-    if "--loop" in sys.argv:
-        print(" ", build_loop())
+    if "--loop" in sys.argv or "--web" in sys.argv:
+        if "--loop" in sys.argv:
+            print(" ", build_loop())
+        if "--web" in sys.argv:
+            print(" ", encode_web(os.path.join(EDIT, "mix.wav")))
         sys.exit()
     print("frames")
     timeline, total, shots = build_frames()
@@ -392,5 +412,6 @@ if __name__ == "__main__":
     wav = build_sound(timeline, total)
     print("encode")
     print(" ", encode_trailer(wav))
+    print(" ", encode_web(wav))
     print("loop")
     print(" ", build_loop())
