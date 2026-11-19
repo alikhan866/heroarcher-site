@@ -40,25 +40,34 @@
     if (playing && playing.catch) playing.catch(function () {});
   }
 
-  // 3. The trailer, in two places: silently in the "fights alone" section
-  //    while it is on screen (the captions are burned in; "Tap for sound"
-  //    starts it over with sound), and with sound in a dialog from "Watch the
-  //    trailer". Without this script the section shows a still with a play
-  //    button and the link opens the video file.
+  // 3. The trailer player in "Your archer fights alone". It plays silently
+  //    while it is on screen (the captions are burned in) and draws its own
+  //    controls over the video: sound (the first tap starts it over from the
+  //    top), play and pause (a tap on the video, or the big button when it is
+  //    paused or done), full screen, and the progress bar (tap to jump).
+  //    Without this script it is the browser's own player.
   //
-  //    Once the page has finished loading and the browser is idle, the video
-  //    is fetched in the background, so both start at once. The page never
-  //    waits for it. Only visitors on Data Saver or real 2G are spared the
-  //    download (not "3g": Chrome reports that from latency alone, for many fine
-  //    connections); they get the play button instead of the silent preview.
+  //    Once the page has finished loading and the browser is idle, the video is
+  //    fetched in the background, so it starts at once. The page never waits
+  //    for it. Only visitors on Data Saver or real 2G are spared the download
+  //    (not "3g": Chrome reports that from latency alone, for many fine
+  //    connections); they, and people who ask for reduced motion, get the play
+  //    button instead of the silent preview.
   (function () {
-    var dialog = document.getElementById("trailer");
-    var inline = document.querySelector("video[data-trailer-inline]");
-    var opener = document.querySelector("a[data-trailer]");
-    var url = opener ? opener.getAttribute("href") : "assets/video/trailer.mp4";
+    var frame = document.querySelector("[data-player]");
+    if (!frame) return;
+    var video = frame.querySelector("video");
+    var source = video.querySelector("source");
+    var url = source ? source.getAttribute("src") : "assets/video/trailer.mp4";
+    var soundButton = frame.querySelector("[data-sound]");
+    var playButton = frame.querySelector("[data-toggle]");
+    var fullButton = frame.querySelector("[data-full]");
+    var bar = frame.querySelector("[data-bar]");
+    var fill = bar.querySelector("span");
+
     var ready = null;      // object URL of the fetched video
     var fetching = null;   // AbortController of the background fetch
-    var waiting = [];      // players waiting for the background copy
+    var waiting = [];      // callers waiting for the background copy
 
     function slowOrSaving() {
       var c = navigator.connection;
@@ -84,25 +93,6 @@
         .catch(function () { fetching = null; settle(); });
     }
 
-    // the silent preview can wait for the background copy...
-    function whenSource(cb) {
-      if (ready || !fetching) cb(ready || url);
-      else waiting.push(cb);
-    }
-    // ...a tap cannot: stream it now, and stop the background copy rather than
-    // download it twice
-    function sourceNow() {
-      if (!ready && fetching) { fetching.abort(); fetching = null; settle(); }
-      return ready || url;
-    }
-
-    // a browser that cannot play the fetched copy streams the file instead
-    function fallBack(video) {
-      video.addEventListener("error", function () {
-        if (ready && video.src === ready) { video.src = url; play(video); }
-      });
-    }
-
     function whenIdle() {
       if ("requestIdleCallback" in window) window.requestIdleCallback(preload, { timeout: 3000 });
       else setTimeout(preload, 1500);
@@ -110,68 +100,109 @@
     if (document.readyState === "complete") whenIdle();
     else window.addEventListener("load", whenIdle);
 
-    // in the section
-    if (inline) {
-      fallBack(inline);
-      var soundButton = document.querySelector("[data-trailer-sound]");
-      var preview = !reduce && !slowOrSaving() && "IntersectionObserver" in window;
-      if (preview) {
-        var withSound = false, visible = false;
-        inline.controls = false;
-        inline.muted = true;
-        inline.loop = true;
-        if (soundButton) soundButton.hidden = false;
-        new IntersectionObserver(function (entries) {
-          entries.forEach(function (entry) {
-            visible = entry.isIntersecting;
-            if (!visible) { inline.pause(); return; }
-            if (withSound) return; // with sound it plays only when asked
-            whenSource(function (src) {
-              if (!visible || withSound) return;
-              if (!inline.getAttribute("src")) inline.src = src;
-              play(inline);
-            });
-          });
-        }, { threshold: 0.35 }).observe(inline);
-        var soundOn = function () {
-          if (withSound) return;
-          withSound = true;
-          if (!inline.getAttribute("src")) inline.src = sourceNow();
-          inline.muted = false;
-          inline.loop = false;
-          inline.controls = true;
-          inline.currentTime = 0;
-          play(inline);
-          if (soundButton) soundButton.hidden = true;
-        };
-        if (soundButton) soundButton.addEventListener("click", soundOn);
-        inline.addEventListener("click", soundOn);
-      } else {
-        // controls only; the fetched copy if there is one by the time they press play
-        inline.addEventListener("play", function () {
-          if (ready && !inline.getAttribute("src")) { inline.src = ready; play(inline); }
-        });
-      }
+    // the silent preview can wait for the background copy; a tap cannot, so it
+    // streams the file and the background copy stops rather than load twice
+    function load(now, then) {
+      if (video.getAttribute("src")) { then(); return; }
+      if (now && !ready && fetching) { fetching.abort(); fetching = null; settle(); }
+      if (ready || !fetching) { video.src = ready || url; then(); return; }
+      waiting.push(function (src) { if (!video.getAttribute("src")) video.src = src; then(); });
     }
 
-    // in the dialog
-    if (!dialog || typeof dialog.showModal !== "function" || !opener) return;
-    var video = dialog.querySelector("video");
-    fallBack(video);
-    opener.addEventListener("click", function (event) {
-      event.preventDefault();
-      if (inline) inline.pause();
-      if (!video.getAttribute("src")) {
-        video.poster = "assets/img/trailer-poster.webp";
-        video.src = sourceNow();
-      }
-      if (video.ended) video.currentTime = 0;
-      dialog.showModal();
-      if (!reduce) play(video);
+    // a browser that cannot play the fetched copy streams the file instead
+    video.addEventListener("error", function () {
+      if (ready && video.src === ready) { video.src = url; play(video); }
     });
-    dialog.addEventListener("close", function () { if (!dialog.open) video.pause(); });
-    dialog.querySelector("[data-trailer-close]").addEventListener("click", function () { dialog.close(); });
-    // a tap outside the video closes it
-    dialog.addEventListener("click", function (event) { if (event.target === dialog) dialog.close(); });
+
+    // our controls replace the browser's
+    video.controls = false;
+    video.muted = true;
+    video.loop = true;
+    soundButton.hidden = false;
+    bar.hidden = false;
+    var canFull = !!(frame.requestFullscreen || frame.webkitRequestFullscreen || video.webkitEnterFullscreen);
+    fullButton.hidden = !canFull;
+
+    var heard = false;       // the sound has been turned on once
+    var userPaused = false;  // paused by a tap, not by scrolling away
+    var visible = false;
+
+    function showPlay() { playButton.hidden = !video.paused; }
+    // a refused play (Low Power Mode refuses even a silent one) leaves the button up
+    function tryPlay() {
+      var playing = video.play();
+      if (playing && playing.catch) playing.catch(showPlay);
+    }
+    video.addEventListener("play", showPlay);
+    video.addEventListener("pause", showPlay);
+    video.addEventListener("ended", showPlay);
+
+    function tick() {
+      if (video.duration) fill.style.transform = "scaleX(" + Math.min(1, video.currentTime / video.duration) + ")";
+      if (!video.paused) window.requestAnimationFrame(tick);
+    }
+    video.addEventListener("play", function () { window.requestAnimationFrame(tick); });
+    video.addEventListener("seeked", tick);
+
+    function start() {
+      userPaused = false;
+      load(true, function () {
+        if (video.ended) video.currentTime = 0;
+        tryPlay();
+      });
+    }
+    function toggle() {
+      if (video.paused) start();
+      else { userPaused = true; video.pause(); }
+    }
+    video.addEventListener("click", toggle);
+    playButton.addEventListener("click", start);
+
+    soundButton.addEventListener("click", function () {
+      var turnOn = video.muted;
+      video.muted = !turnOn;
+      video.loop = !turnOn; // with sound it plays through once and stops on the end card
+      if (turnOn && !heard) {
+        heard = true;
+        soundButton.classList.add("is-round");
+        load(true, function () { video.currentTime = 0; });
+      }
+      soundButton.setAttribute("aria-pressed", turnOn ? "true" : "false");
+      soundButton.setAttribute("aria-label", turnOn ? "Turn the sound off" : "Turn the sound on");
+      if (turnOn && video.paused) start();
+    });
+
+    bar.addEventListener("click", function (event) {
+      if (!video.duration) return;
+      var r = bar.getBoundingClientRect();
+      video.currentTime = Math.max(0, Math.min(1, (event.clientX - r.left) / r.width)) * video.duration;
+      tick();
+      if (video.paused) start();
+    });
+
+    fullButton.addEventListener("click", function () {
+      var d = document;
+      if (d.fullscreenElement || d.webkitFullscreenElement) {
+        (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+      } else if (frame.requestFullscreen) {
+        var going = frame.requestFullscreen();
+        if (going && going.catch) going.catch(function () {});
+      } else if (frame.webkitRequestFullscreen) {
+        frame.webkitRequestFullscreen();
+      } else if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen(); // iPhone: the system player
+      }
+    });
+
+    var preview = !reduce && !slowOrSaving() && "IntersectionObserver" in window;
+    if (!preview) { showPlay(); return; }
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        visible = entry.isIntersecting;
+        if (!visible) { if (!video.paused) video.pause(); return; }
+        if (userPaused || (heard && video.ended)) return;
+        load(false, function () { if (visible && !userPaused) tryPlay(); });
+      });
+    }, { threshold: 0.35 }).observe(video);
   })();
 })();

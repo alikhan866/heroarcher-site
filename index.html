@@ -26,8 +26,8 @@
 
   <link rel="preload" href="assets/fonts/lilita-one.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/baloo2-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/site.css">
-  <script src="assets/js/site.js" defer></script>
+  <link rel="stylesheet" href="assets/css/site.css?v=7837e21f9d">
+  <script src="assets/js/site.js?v=35ec66bd99" defer></script>
 
   <script type="application/ld+json">
   {
@@ -89,16 +89,10 @@
       <div class="hero__copy">
         <p class="tag">The forest is crawling.</p>
         <p class="sub">Hero Archer is an idle tower defense game. The tower fights on its own and your archer never misses a shift. Your job is to make them stronger, run after run.</p>
-        <div class="hero__actions">
-          <a class="cta" data-play="hero" href="https://play.google.com/store/apps/details?id=com.omarkhan.heroarcher&amp;referrer=utm_source%3Dheroarcher.com%26utm_medium%3Dwebsite%26utm_content%3Dhero">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 20h14"/></svg>
-            Play free on Google Play
-          </a>
-          <a class="watch" href="assets/video/trailer.mp4" data-trailer>
-            <span class="watch__play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.2v13.6L19 12z" fill="currentColor"/></svg></span>
-            Watch the trailer <span class="watch__len">0:31</span>
-          </a>
-        </div>
+        <a class="cta" data-play="hero" href="https://play.google.com/store/apps/details?id=com.omarkhan.heroarcher&amp;referrer=utm_source%3Dheroarcher.com%26utm_medium%3Dwebsite%26utm_content%3Dhero">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 20h14"/></svg>
+          Play free on Google Play
+        </a>
         <ul class="meta">
           <li>Free to play</li>
           <li>Android 7.1 and up</li>
@@ -110,20 +104,27 @@
 
     <section class="section action" aria-labelledby="fights-alone">
       <div class="wrap action__grid">
-        <!-- the trailer: site.js plays it silently while it is on screen (the
-             captions are burned in) and "Tap for sound" starts it over with sound;
-             without script it is a still with a play button -->
-        <figure class="clip clip--trailer">
-          <video data-trailer-inline controls playsinline preload="none" width="720" height="1280" poster="assets/img/trailer-poster.webp" aria-label="The Hero Archer trailer: goblin waves, abilities, contraptions, a boss fight and the gear your archer wears">
-            <source src="assets/video/trailer.mp4" type="video/mp4">
-          </video>
-          <figcaption>
-            <span>The trailer, 0:31.</span>
-            <button class="watch watch--small" type="button" data-trailer-sound hidden>
-              <span class="watch__play watch__play--sound" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 9.5h3.6L11.5 5.6v12.8l-4.4-3.9H3.5z" fill="currentColor"/><path d="M15 9.2a4 4 0 0 1 0 5.6M17.6 6.6a7.6 7.6 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
-              Tap for sound
+        <!-- the trailer. site.js plays it silently while it is on screen (the
+             captions are burned in) and draws the controls over it: sound, play,
+             full screen, the progress bar. Without script: the browser's own player -->
+        <figure class="player">
+          <div class="player__frame" data-player>
+            <video controls playsinline preload="none" width="720" height="1280" poster="assets/img/trailer-poster.webp" aria-label="The Hero Archer trailer: goblin waves, abilities, contraptions, a boss fight and the gear your archer wears">
+              <source src="assets/video/trailer.mp4" type="video/mp4">
+            </video>
+            <button class="player__sound" type="button" data-sound aria-pressed="false" aria-label="Turn the sound on" hidden>
+              <svg class="player__icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.5h3.6L11.5 5.6v12.8l-4.4-3.9H3.5z" fill="currentColor"/><path d="M15.4 9.6l4.8 4.8M20.2 9.6l-4.8 4.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+              <svg class="player__icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.5h3.6L11.5 5.6v12.8l-4.4-3.9H3.5z" fill="currentColor"/><path d="M15 9.2a4 4 0 0 1 0 5.6M17.6 6.6a7.6 7.6 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+              <span class="player__sound-label">Tap for sound</span>
             </button>
-          </figcaption>
+            <button class="player__play" type="button" data-toggle aria-label="Play the trailer" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12z" fill="currentColor"/></svg>
+            </button>
+            <button class="player__full" type="button" data-full aria-label="Full screen" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="player__bar" data-bar hidden><span></span></div>
+          </div>
         </figure>
         <div>
           <p class="plaque">Your archer fights alone</p>
@@ -244,20 +245,5 @@
       <p class="foot__legal">Google Play and the Google Play logo are trademarks of Google LLC.</p>
     </div>
   </footer>
-
-  <!-- the trailer with sound, opened by "Watch the trailer" (site.js); without
-       script that link opens the video file itself -->
-  <dialog class="trailer" id="trailer" aria-label="Hero Archer trailer">
-    <div class="trailer__box">
-      <button class="trailer__close" type="button" data-trailer-close aria-label="Close the trailer">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
-      <video class="trailer__video" controls playsinline preload="none" width="720" height="1280"></video>
-      <a class="cta trailer__cta" data-play="trailer" href="https://play.google.com/store/apps/details?id=com.omarkhan.heroarcher&amp;referrer=utm_source%3Dheroarcher.com%26utm_medium%3Dwebsite%26utm_content%3Dtrailer">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7 10.5l5 5 5-5"/><path d="M5 20h14"/></svg>
-        Play free on Google Play
-      </a>
-    </div>
-  </dialog>
 </body>
 </html>

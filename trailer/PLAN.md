@@ -5,7 +5,7 @@ Status: **made** (2026-11-19). The finished files:
 | File | For | Shape |
 |---|---|---|
 | `trailer/build/out/trailer-1080x1920.mp4` (also in the game repo, `docs/release/store-assets/`) | TikTok, YouTube Shorts, Reels, creators | 9:16, 31.5 s, 60 fps, Emberwood music + the game's sound, captions burned in, -14 LUFS |
-| `assets/video/trailer.mp4` + `assets/img/trailer-poster.webp` | the site: the "fights alone" section and the "Watch the trailer" dialog | 720x1280, 60 fps, 5 MB |
+| `assets/video/trailer.mp4` + `assets/img/trailer-poster.webp` | the site's player, in the "fights alone" section | 720x1280, 60 fps, 5 MB |
 
 Everything is real gameplay from the current build, staged with the game's own
 Scenarios tool so each shot is repeatable and only the enemies a shot asks for

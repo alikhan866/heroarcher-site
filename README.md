@@ -39,6 +39,16 @@ fights alone", "Waves and bosses", "The chapters", "The loop") are the
 tutorial's own card titles. Keep it that way: specific, in the game's voice,
 and no em dashes.
 
+## After changing site.css or site.js
+
+```
+python tools/stamp_assets.py
+```
+
+Every page links them as `site.css?v=<hash>` and `site.js?v=<hash>`. GitHub
+Pages lets browsers keep them for 10 minutes, so without a new stamp a visitor
+can get the new page with the old styles and script. Run it before committing.
+
 ## Rebuilding the art
 
 ```
@@ -75,17 +85,18 @@ the trailer recording; `trailer/PLAN.md` says how that recording is made.
 2. **iPhone visitors** see a line saying the game is Android only for now.
    Remove the `.ios-note` paragraph in `index.html` once the App Store version
    is out, and add an App Store link next to the Play one.
-3. **The trailer**, in two places. In the "fights alone" section it plays
-   silently while it is on screen (the captions are burned in) and "Tap for
-   sound", or a tap on the video, starts it over with sound and controls.
-   "Watch the trailer" under the Play button opens it with sound in a dialog,
-   with a Play button under it (`utm_content=trailer`). After the page has
-   loaded and the browser is idle, the file is fetched in the background so
-   both start at once; the page never waits for it. Visitors on Data Saver or
-   real 2G skip the download and get a play button instead of the silent
-   preview (Chrome reports "3g" from latency alone, so that is no reason to
-   skip), as do people who ask for reduced motion. Without the script the
-   section is a still with a play button and the link opens the file itself.
+3. **The trailer player** in "Your archer fights alone". It plays silently
+   while it is on screen (the captions are burned in) and draws its own
+   controls over the video: "Tap for sound" (the first tap starts it over from
+   the top, then it is a speaker icon), a tap on the video to pause or play, a
+   big play button when it is paused or done, full screen (letterboxed, never
+   cropped), and a progress bar to tap along. After the page has loaded and
+   the browser is idle, the file is fetched in the background so it starts at
+   once; the page never waits for it. Visitors on Data Saver or real 2G skip
+   the download and get the play button instead of the silent preview (Chrome
+   reports "3g" from latency alone, so that is no reason to skip), as do
+   people who ask for reduced motion. Without the script it is the browser's
+   own player.
 
 ## Domain setup (GoDaddy)
 
