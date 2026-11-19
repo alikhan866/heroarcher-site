@@ -83,8 +83,8 @@ The "how it plays" section is a muted 9-second loop,
    `trailer/make_trailer.py --web`) in a dialog, with sound and a Play button
    under it (`utm_content=trailer`). After the page has loaded and the browser
    is idle, the file is fetched in the background so a tap starts it at once;
-   the page never waits for it, and visitors on Data Saver or 2G/3G are not
-   made to download it. Without the script the links open the file itself.
+   the page never waits for it. Only Data Saver and real 2G skip the download
+   (Chrome reports "3g" from latency alone, so that is not a reason to skip). Without the script the links open the file itself.
 
 ## Domain setup (GoDaddy)
 

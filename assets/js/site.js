@@ -61,8 +61,8 @@
   //    (without this script those links open the video file). Once the page has
   //    finished loading and the browser is idle, the video is fetched in the
   //    background, so a tap starts it at once. The page itself never waits for
-  //    it, and visitors on Data Saver or a 2G/3G connection are not made to
-  //    download it unasked.
+  //    it. Only visitors on Data Saver or real 2G are spared the download (not
+  //    "3g": Chrome reports that from latency alone, for many fine connections).
   (function () {
     var dialog = document.getElementById("trailer");
     var openers = document.querySelectorAll("a[data-trailer]");
@@ -75,7 +75,7 @@
 
     function slowOrSaving() {
       var c = navigator.connection;
-      return !!(c && (c.saveData || /(^|slow-)2g|3g/.test(c.effectiveType || "")));
+      return !!(c && (c.saveData || /2g$/.test(c.effectiveType || "")));
     }
 
     function preload() {
