@@ -566,9 +566,10 @@ video:fullscreen { object-fit: contain; }
   background: var(--panel);
   scroll-snap-align: start;
 }
+/* whole phone screens, 9:16 */
 .shot img {
   width: 100%;
-  aspect-ratio: 720 / 1056;
+  aspect-ratio: 9 / 16;
   object-fit: cover;
   border-radius: 11px;
 }

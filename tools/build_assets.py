@@ -79,12 +79,14 @@ for src, name in [
     webp(im, name + "-768", 768, quality=78)
     webp(im, name + "-400", 400, quality=78)
 
-# Store screenshots (docs/release/store-assets/v25) minus their caption band.
-for src, name in [("02_lightning", "shot-lightning"), ("04_boss", "shot-boss"),
-                  ("05_perks", "shot-contraption"), ("06_gear", "shot-gear")]:
-    im = Image.open(game("docs", "release", "store-assets", "v25", src + ".png")).convert("RGB")
-    im = im.crop((0, 336, 1080, 1920))
-    webp(im, name + "-720", 720, quality=80)
+# The screenshot rail: whole 1080x1920 screens from the current build
+# (docs/release/store-assets/site, captured 2026-11-19 with trailer/unity: the
+# boss and Storm Rod frames come from the still_boss and still_storm takes, the
+# contraption pick and the gear screen are single captures).
+for src, name in [("shot_boss", "shot-boss"), ("shot_storm", "shot-storm"),
+                  ("shot_pick", "shot-contraption"), ("shot_gear", "shot-gear")]:
+    im = Image.open(game("docs", "release", "store-assets", "site", src + ".png")).convert("RGB")
+    webp(im, name + "-720", 720, quality=82)
     webp(im, name + "-360", 360, quality=80)
 
 

@@ -22,6 +22,9 @@ for (int si = 0; si < vd.seenEnemies.Length; si++) vd.seenEnemies[si] = true;
 for (int si = 0; si < vd.seenElites.Length; si++) vd.seenElites[si] = true;
 for (int si = 0; si < vd.seenPerks.Length; si++) vd.seenPerks[si] = true;
 Unlocks.DevAll = true;
+// a tutorial that began before this ran (a fresh play session boots without a save) is closed
+foreach (var tut in UnityEngine.Object.FindObjectsByType<TutorialV2>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+    typeof(TutorialV2).GetMethod("FinishTutorial", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(tut, new object[] { true });
 // GameManager.Awake reloads the save from disk on every scene load, so the veteran
 // has to be ON disk: one deliberate write (the session's only one; the save family
 // is deleted afterwards - there was none before)
@@ -307,5 +310,31 @@ foreach (var e in Enemy.Active) if (e != null && e.Rising && st[0] == 0) { st[0]
             spawn("Runner", 1, 2.6, 175, 1.9, every=3.7),
         ]),
         ready=ready_for(0, 8), settle=60, length=330, keep=ENERGY, cues=coins_at_start(214),
+    ),
+
+    # ---- stills for the website's screenshot rail (pick the frame afterwards) ----
+    "still_storm": dict(   # the Storm Rod chaining through the dead, a full field
+        pre=TO_MENU,
+        setup=battle(2, 12, natural=True, dmg=10, rate=10, perks=["Storm", "Storm", "Storm"], spawns=[
+            spawn("Grunt", 4, 0.1, 225, 1.25), spawn("Grunt", 4, 0.2, 315, 1.3), spawn("Grunt", 3, 0.3, 135, 1.35),
+            spawn("Grunt", 3, 0.4, 40, 1.4), spawn("Runner", 2, 0.6, 270, 1.3),
+            spawn("Grunt", 3, 3.0, 250, 1.4, every=3.0), spawn("Grunt", 3, 4.0, 15, 1.4, every=3.5),
+        ]),
+        ready=ready_for(2, 12), settle=60, length=480, keep=ENERGY + r"""
+if (gm != null && gm.Playing) { gm.zapInterval.level = 5; gm.chainCount.level = 3; }""",
+        cues=coins_at_start(640),
+    ),
+    "still_boss": dict(    # the Boss Ogre's SLAM windup, at its real health
+        pre=TO_MENU,
+        setup=battle(0, 10, natural=False, dmg=12, rate=10, spawns=[
+            spawn("Boss", 1, 0.2, 300, 0.7), spawn("Grunt", 4, 0.4, 205, 1.3), spawn("Grunt", 3, 0.8, 60, 1.4),
+            spawn("Grunt", 2, 2.5, 140, 1.5),
+        ]),
+        ready=ready_for(0, 10), settle=50, length=900, keep=ENERGY,
+        cues=coins_at_start(355) + r"""
+Enemy boss = null;
+foreach (var e in Enemy.Active) if (e != null && e.isBoss && e.Alive && e.gameObject.activeInHierarchy) boss = e;
+if (st[1] == 0 && boss != null && boss.WindingUp) { st[1] = frame; notes.AppendLine("windup at " + frame + " hp " + boss.CurrentHp.ToString("F0") + "/" + boss.MaxHp.ToString("F0")); lengthFrames = frame + 70; }
+""",
     ),
 }
