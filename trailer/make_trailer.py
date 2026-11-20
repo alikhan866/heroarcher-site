@@ -54,10 +54,12 @@ CUT = [
     ("frost", 243, 305, "04_abilities", {}),             # Poison Cloud
     ("storm", 62, 150, "05_contraption", {}),            # the Storm Rod arcs down a column
     ("ballista", 105, 195, "05_contraption", {}),        # the Ballista spear through a line
-    ("boss", 268, 440, "06_boss", {}),                   # SLAM, Mega Gust, BROKEN, Lightning
+    # boss frames follow the take's events (2026-11-20 take: windup 294, dead 395,
+    # pickup 451, equip 485; the 11-19 take ran 17 frames later, same spacing)
+    ("boss", 251, 423, "06_boss", {}),                   # SLAM, Mega Gust, BROKEN, Lightning
     # the helm drops and is picked up (a gentle push, the item's name still fits),
     # then in on the archer as it goes on
-    ("boss", 440, 580, "07_gear", {"zoom": [(455, 1.0, 540, 960), (482, 1.2, 545, 700), (496, 1.2, 545, 700), (522, 2.2, 545, 470)]}),
+    ("boss", 423, 563, "07_gear", {"zoom": [(438, 1.0, 540, 960), (465, 1.2, 545, 700), (479, 1.2, 545, 700), (505, 2.2, 545, 470)]}),
     ("gear", 38, 200, "07_gear", {}),                    # the gear screen: a set cloak equipped
     ("blizzard", 60, 122, "08_lands", {}),               # Frostpeak's blizzard
     ("rise", 52, 178, "08_lands", {}),                   # the dead get back up
@@ -109,11 +111,11 @@ def ring_sprite(age):
     r = (30 + 44 * ease(k)) * s
     a = int(245 * (1 - k) ** 1.3)
     wd = int(10 * s * (1 - 0.45 * k))
-    d.ellipse([c - r - 3 * s, c - r - 3 * s, c + r + 3 * s, c + r + 3 * s], outline=(30, 18, 8, int(a * 0.55)), width=wd + 6 * s)
+    d.ellipse([c - r - 3 * s, c - r - 3 * s, c + r + 3 * s, c + r + 3 * s], outline=(8, 11, 14, int(a * 0.55)), width=wd + 6 * s)
     d.ellipse([c - r, c - r, c + r, c + r], outline=(255, 255, 255, a), width=wd)
     if age < 10:
         rd = (27 - age) * s
-        d.ellipse([c - rd - 2 * s, c - rd - 2 * s, c + rd + 2 * s, c + rd + 2 * s], fill=(30, 18, 8, int(70 * (1 - age / 10))))
+        d.ellipse([c - rd - 2 * s, c - rd - 2 * s, c + rd + 2 * s, c + rd + 2 * s], fill=(8, 11, 14, int(70 * (1 - age / 10))))
         d.ellipse([c - rd, c - rd, c + rd, c + rd], fill=(255, 255, 255, int(150 * (1 - age / 10))))
     im = im.resize((size, size), Image.LANCZOS)
     shadow = im.split()[3].filter(ImageFilter.GaussianBlur(4)).point(lambda v: v * 0.45)

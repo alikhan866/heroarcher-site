@@ -3,8 +3,9 @@
     python trailer/captions.py [path-to-game-repo]
 
 Writes transparent 1080x1920 PNGs to trailer/build/cards/, one per caption,
-in the store screenshots' style: a gold Lilita One headline with a dark
-outline and a cream Baloo 2 line under it, on a soft dark band near the top
+in the game's Frostpeak Slate style: a Lilita One headline in the title
+colours (frost white to ice) with a dark slate outline and a frost-white Baloo 2
+line under it, on a soft dark band near the top
 (clear of the TikTok/Shorts buttons at the bottom and right). Also writes the
 end card and a preview of every caption over a gameplay frame.
 """
@@ -19,10 +20,12 @@ OUT = os.path.join(HERE, "build", "cards")
 os.makedirs(OUT, exist_ok=True)
 
 W, H = 1080, 1920
-GOLD_TOP, GOLD_BOTTOM = (255, 214, 102), (240, 160, 40)
-CREAM = (245, 237, 220)
-OUTLINE = (42, 24, 10)
-BAND = (29, 21, 14)
+# the game's UIHex (Frostpeak Slate): Title, TitleBottom, Text, Deep; the band is
+# the site's --bg
+TITLE_TOP, TITLE_BOTTOM = (243, 249, 252), (182, 220, 240)
+TEXT = (237, 242, 246)
+OUTLINE = (8, 11, 14)
+BAND = (14, 19, 23)
 
 LILITA = os.path.join(GAME, "Assets", "Fonts", "LilitaOne-Regular.ttf")
 BALOO = os.path.join(GAME, "Assets", "Fonts", "Baloo2-ExtraBold.ttf")
@@ -52,8 +55,8 @@ def fit(text, path, start, max_w):
     return ImageFont.truetype(path, size)
 
 
-def gold_text(canvas, xy, text, font, stroke=8):
-    """Gold-gradient text with a dark outline and a drop shadow, centred on xy."""
+def title_text(canvas, xy, text, font, stroke=8):
+    """Title-gradient text with a dark outline and a drop shadow, centred on xy."""
     x, y = xy
     l, t, r, b = font.getbbox(text, stroke_width=stroke)
     w, h = r - l, b - t
@@ -72,7 +75,7 @@ def gold_text(canvas, xy, text, font, stroke=8):
     gd = ImageDraw.Draw(grad)
     for i in range(h + 1):
         k = i / max(1, h)
-        c = tuple(round(GOLD_TOP[j] + (GOLD_BOTTOM[j] - GOLD_TOP[j]) * k) for j in range(3))
+        c = tuple(round(TITLE_TOP[j] + (TITLE_BOTTOM[j] - TITLE_TOP[j]) * k) for j in range(3))
         gd.line([(0, y + i), (W, y + i)], fill=c + (255,))
     canvas.paste(grad, (0, 0), mask)
     return y + h
@@ -99,9 +102,9 @@ def band(height=400):
 def caption_card(head, sub):
     im = band()
     # 170 px down clears the platforms' top bar; the tower starts near 390
-    y = gold_text(im, (W / 2, 170), head, fit(head, LILITA, 96, W - 140))
+    y = title_text(im, (W / 2, 170), head, fit(head, LILITA, 96, W - 140))
     if sub:
-        plain_text(im, (W / 2, y + 22), sub, fit(sub, BALOO, 52, W - 160), CREAM)
+        plain_text(im, (W / 2, y + 22), sub, fit(sub, BALOO, 52, W - 160), TEXT)
     return im
 
 
@@ -117,8 +120,8 @@ def end_card():
     tower = Image.open(os.path.join(HERE, "..", "assets", "img", "tower-archer-552.webp")).convert("RGBA")
     tower = tower.resize((520, round(tower.height * 520 / tower.width)), Image.LANCZOS)
     im.alpha_composite(tower, ((W - tower.width) // 2, 820))
-    y = gold_text(im, (W / 2, 1640), "GOOD HUNTING, HERO", fit("GOOD HUNTING, HERO", LILITA, 92, W - 160))
-    plain_text(im, (W / 2, y + 30), "Free on Google Play", fit("Free on Google Play", BALOO, 54, W - 200), CREAM)
+    y = title_text(im, (W / 2, 1640), "GOOD HUNTING, HERO", fit("GOOD HUNTING, HERO", LILITA, 92, W - 160))
+    plain_text(im, (W / 2, y + 30), "Free on Google Play", fit("Free on Google Play", BALOO, 54, W - 200), TEXT)
     return im
 
 

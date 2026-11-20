@@ -1,6 +1,7 @@
 # Hero Archer trailer
 
-Status: **made** (2026-11-19). The finished files:
+Status: **made** (2026-11-19), **re-recorded 2026-11-20** in the game's Frostpeak Slate UI
+(game repo proposal 49), with Slate captions and end card. The finished files:
 
 | File | For | Shape |
 |---|---|---|
@@ -27,6 +28,18 @@ except the archer, the contraptions and the enemies.
 | 0:28 | End card: logo, the archer on the tower, dusk valley | GOOD HUNTING, HERO / Free on Google Play |
 
 ## How it was recorded
+
+**2026-11-20 re-record: batchmode, no editor.** `python trailer/unity/batch.py
+<game-worktree> <take> ...` generates the same takes and driver into a PlayMode test
+in a game worktree (its own productName; never commit the generated file) and runs
+`Unity -batchmode -runTests`. The world camera draws into a portrait RT with the HUD
+canvases moved onto it; see batch.py's header for why. All eleven takes in one run
+took 4.5 minutes. Frame pacing came out at an 18-22 ms median (other Unity jobs
+were running), so effects on unscaled time (damage numbers, button squash) play a
+little quicker than in the editor takes. The boss cut is retimed from the take's
+logged events (meta.txt, events.txt). The editor path below still works.
+
+**2026-11-19: the open editor.**
 
 Nothing was added to the game project. The open editor is driven through the
 MCP-for-Unity bridge (`http://127.0.0.1:8080/mcp`, its `execute_code` tool,
