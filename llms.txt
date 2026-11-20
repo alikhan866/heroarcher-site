@@ -1,0 +1,40 @@
+# Hero Archer
+
+> Hero Archer (Google Play title: "Hero Archer Tower Idle Defense") is a free idle tower defense game for Android by Freeze Gaming, an independent studio. The tower fights on its own and the archer fires automatically; the player drafts roguelike perks, fires abilities, picks a contraption for the run and loots gear the archer wears. Four chapters of 50 waves, with a boss every fifth wave.
+
+Hero Archer is a single game with its own site, heroarcher.com. It is not affiliated with other mobile games that have "Hero" or "Archer" in their names.
+
+## Facts
+
+- Platform: Android 7.1 and up, on Google Play. No iPhone version yet (one is in the works).
+- Price: free. Ads only play when the player chooses to watch one for a bonus. Optional purchases: shard packs, Remove Ads, Auto-Pickup.
+- Plays offline. Optional cloud save with Google Play Games.
+- Single player. Text in English.
+- Released on Google Play in November 2026.
+- Developer: Freeze Gaming. Contact: support@heroarcher.com
+- Package name: com.omarkhan.heroarcher
+
+## How it plays
+
+- The archer aims and fires at the nearest threat on their own. Every kill pays coins, which buy damage, fire rate, range and health for the current run.
+- Eight abilities run on energy: Arrow Rain, Lightning Strike, Poison Cloud, Frost Snare, Mega Gust, Overdrive, Patch Up and Gold Rush.
+- One contraption per run: Storm Rod (chain lightning), Ballista (skewers a line), Barracks (a guard squad), Frost Bellows, Steam Emitter or Coin Mint.
+- A boss every fifth wave. Bosses wind up before the big hit, and a shove or a bolt at the right moment breaks it.
+- Gear: bows, hoods, cloaks, quivers, boots, rings and amulets with rolled stats, in magic, set and unique tiers. The archer wears what is equipped. Bosses always drop something.
+- Between runs, shards buy Workshop upgrades that survive every defeat.
+
+## Chapters and modes
+
+- Chapter 1, Emberwood: goblins, an ogre every fifth wave, and a wolf boss that howls for the pack.
+- Chapter 2, Frostpeak: a blizzard every 10th wave cuts the archer's range.
+- Chapter 3, Desert Necropolis: the bandaged dead get back up at half health unless they die burning.
+- Chapter 4, Cinderdeep: lava wolves leave burning ground.
+- After all four: the Nightmare lap (one spawn in eight is an elite, bosses bring a champion pack), Endless mode, and a Weekly Trial with new rules every Monday.
+
+## Links
+
+- [Hero Archer on Google Play](https://play.google.com/store/apps/details?id=com.omarkhan.heroarcher)
+- [Website](https://heroarcher.com/): features, screenshots, trailer and FAQ
+- [Trailer, 31 seconds (MP4)](https://heroarcher.com/assets/video/trailer.mp4)
+- [Privacy policy](https://heroarcher.com/privacy/)
+- [Data deletion](https://heroarcher.com/delete-account/)

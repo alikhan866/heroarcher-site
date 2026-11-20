@@ -676,6 +676,25 @@ video:fullscreen { object-fit: contain; }
   letter-spacing: .02em;
 }
 
+/* ---------- questions ---------- */
+
+.faq {
+  display: grid;
+  gap: 0 48px;
+  margin-top: 24px;
+}
+.faq__item {
+  padding-block: 18px;
+  border-top: 1px solid var(--panel-light);
+}
+.faq h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+.faq p { margin: 0; color: var(--text-dim); }
+
 /* ---------- closing call ---------- */
 
 .final {
@@ -835,6 +854,8 @@ video:fullscreen { object-fit: contain; }
   }
   .chapters { gap: 20px; margin-top: 44px; }
   .nightmare { align-items: center; padding: 18px 22px; }
+  .faq { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 32px; }
+  .faq h3 { font-size: 1.375rem; }
   .foot__row { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
 }
 

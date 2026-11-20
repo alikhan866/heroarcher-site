@@ -20,6 +20,8 @@ trailer/                 the trailer: captions, recording driver, edit (PLAN.md)
 CNAME                    tells GitHub Pages to serve heroarcher.com
 app-ads.txt              AdMob publisher declaration
 robots.txt, sitemap.xml, site.webmanifest, favicons, og-image.jpg
+llms.txt                 fact sheet for AI assistants (see "Search and AI answers")
+f065e4...c3c4.txt        IndexNow key, used by tools/indexnow.py
 ```
 
 ## Preview locally
@@ -50,6 +52,33 @@ Pages lets browsers keep them for 10 minutes, so without a new stamp a visitor
 can get the new page with the old styles and script. The link-preview image
 is stamped too: WhatsApp and the rest cache it by its address. Run it before
 committing.
+
+## Search and AI answers (discoverability)
+
+What the site gives search engines and AI assistants, and what to keep in step:
+
+- **Structured data** in `index.html`'s `<head>`: the studio, the site, the game
+  (`VideoGame` + `MobileApplication`, with screenshots, trailer, price, platform)
+  and the FAQ. The **FAQ section** on the page and the `FAQPage` answers in the
+  structured data must match word for word; change one, change both. Check with
+  https://search.google.com/test/rich-results and https://validator.schema.org.
+- **`llms.txt`**: a plain fact sheet for AI crawlers (what the game is, price,
+  platform, modes, links). Update it when a chapter, mode or platform is added,
+  and when the iPhone version ships.
+- **`sitemap.xml`** lists every page plus the trailer as a video; bump `lastmod`
+  on a page when its text changes.
+- **IndexNow**: after a push that changes what a page says, run
+  `python tools/indexnow.py` and Bing, ChatGPT search, Copilot and DuckDuckGo
+  re-read the pages within minutes. The key file is
+  `f065e41e63c11c5649b1ed4b4fdce3c4.txt`; keep it.
+- **Google** does not take IndexNow. Verify the domain once in Search Console
+  (https://search.google.com/search-console, "Domain" property, a `TXT` record
+  at GoDaddy), submit `https://heroarcher.com/sitemap.xml`, and use "URL
+  inspection > Request indexing" on the home page after big changes. Do the same
+  in Bing Webmaster Tools (it can import the Search Console site in one click).
+- The name "Hero Archer" is close to other archer games, so every page and
+  listing pairs it with "idle tower defense" and Freeze Gaming. Keep doing that
+  in new copy, posts and video descriptions.
 
 ## Rebuilding the art
 

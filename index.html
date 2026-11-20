@@ -4,9 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hero Archer: Idle Tower Defense for Android</title>
-  <meta name="description" content="Free idle tower defense for Android. Your archer holds the tower while you pick perks, call down abilities and loot gear across four chapters of bosses.">
+  <meta name="description" content="Free idle tower defense game for Android that plays offline. Your archer holds the tower while you pick perks, call down abilities and loot gear from bosses.">
   <link rel="canonical" href="https://heroarcher.com/">
   <meta name="theme-color" content="#0e1317">
+  <meta name="application-name" content="Hero Archer">
+  <meta name="author" content="Freeze Gaming">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1">
 
   <link rel="icon" href="favicon.ico" sizes="48x48">
   <link rel="icon" href="icon-192.png" type="image/png" sizes="192x192">
@@ -14,6 +17,7 @@
   <link rel="manifest" href="site.webmanifest">
 
   <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
   <meta property="og:site_name" content="Hero Archer">
   <meta property="og:url" content="https://heroarcher.com/">
   <meta property="og:title" content="Hero Archer: Idle Tower Defense">
@@ -27,35 +31,140 @@
 
   <link rel="preload" href="assets/fonts/lilita-one.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/baloo2-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="assets/css/site.css?v=2588586d28">
+  <link rel="stylesheet" href="assets/css/site.css?v=9412b76a8c">
   <script src="assets/js/site.js?v=35ec66bd99" defer></script>
 
+  <!-- structured data: who makes it, the site, the game and the FAQ below.
+       The FAQ answers here must stay word for word the same as the visible ones. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "VideoGame",
-    "name": "Hero Archer",
-    "alternateName": "Hero Archer Tower Idle Defense",
-    "url": "https://heroarcher.com/",
-    "image": "https://heroarcher.com/og-image.jpg?v=39e2e4bce3",
-    "description": "An idle tower defense game for Android with roguelike perks, boss fights and gear your archer wears.",
-    "genre": ["Tower defense", "Idle", "Roguelike"],
-    "gamePlatform": "Android",
-    "applicationCategory": "GameApplication",
-    "operatingSystem": "Android 7.1 or later",
-    "installUrl": "https://play.google.com/store/apps/details?id=com.omarkhan.heroarcher",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "trailer": {
-      "@type": "VideoObject",
-      "name": "Hero Archer trailer",
-      "description": "31 seconds of Hero Archer gameplay: goblin waves, abilities, contraptions, a boss fight and the gear your archer wears.",
-      "thumbnailUrl": "https://heroarcher.com/assets/img/trailer-poster.webp",
-      "contentUrl": "https://heroarcher.com/assets/video/trailer.mp4",
-      "uploadDate": "2026-11-19",
-      "duration": "PT31S"
-    },
-    "author": { "@type": "Organization", "name": "Freeze Gaming" },
-    "publisher": { "@type": "Organization", "name": "Freeze Gaming" }
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://heroarcher.com/#studio",
+        "name": "Freeze Gaming",
+        "description": "Independent game studio, maker of Hero Archer.",
+        "url": "https://alikhan866.github.io/",
+        "email": "support@heroarcher.com"
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://heroarcher.com/#website",
+        "url": "https://heroarcher.com/",
+        "name": "Hero Archer",
+        "alternateName": ["Hero Archer Tower Idle Defense", "heroarcher.com"],
+        "inLanguage": "en",
+        "publisher": { "@id": "https://heroarcher.com/#studio" }
+      },
+      {
+        "@type": ["VideoGame", "MobileApplication"],
+        "@id": "https://heroarcher.com/#game",
+        "name": "Hero Archer",
+        "alternateName": "Hero Archer Tower Idle Defense",
+        "url": "https://heroarcher.com/",
+        "sameAs": ["https://play.google.com/store/apps/details?id=com.omarkhan.heroarcher"],
+        "mainEntityOfPage": { "@id": "https://heroarcher.com/#website" },
+        "image": "https://heroarcher.com/og-image.jpg?v=39e2e4bce3",
+        "screenshot": [
+          "https://heroarcher.com/assets/img/shot-boss-720.webp",
+          "https://heroarcher.com/assets/img/shot-storm-720.webp",
+          "https://heroarcher.com/assets/img/shot-contraption-720.webp",
+          "https://heroarcher.com/assets/img/shot-gear-720.webp"
+        ],
+        "description": "Hero Archer is a free idle tower defense game for Android. The tower fights on its own and your archer never misses a shift: you draft roguelike perks, fire abilities, bolt contraptions onto the tower and loot gear your archer wears, across four chapters of 50 waves with a boss every fifth wave.",
+        "genre": ["Tower defense", "Idle", "Roguelike", "Strategy"],
+        "keywords": "idle tower defense, tower defense, archer game, roguelike perks, boss fights, loot, offline game, Android game",
+        "gamePlatform": "Android",
+        "operatingSystem": "Android 7.1 or later",
+        "applicationCategory": "GameApplication",
+        "applicationSubCategory": "Tower defense",
+        "playMode": "SinglePlayer",
+        "numberOfPlayers": { "@type": "QuantitativeValue", "value": 1 },
+        "inLanguage": "en",
+        "datePublished": "2026-11-09",
+        "isAccessibleForFree": true,
+        "installUrl": "https://play.google.com/store/apps/details?id=com.omarkhan.heroarcher",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock",
+          "url": "https://play.google.com/store/apps/details?id=com.omarkhan.heroarcher"
+        },
+        "featureList": [
+          "Your archer aims and fires on their own",
+          "Eight abilities: Arrow Rain, Lightning Strike, Poison Cloud, Frost Snare, Mega Gust, Overdrive, Patch Up and Gold Rush",
+          "One contraption per run: Storm Rod, Ballista, Barracks, Frost Bellows, Steam Emitter or Coin Mint",
+          "Roguelike perks drafted every level",
+          "A boss every fifth wave",
+          "Gear with rolled stats that the archer wears: magic, set and unique items",
+          "Four chapters of 50 waves: Emberwood, Frostpeak, Desert Necropolis and Cinderdeep",
+          "Nightmare lap, Endless mode and a Weekly Trial",
+          "Workshop upgrades that survive every defeat",
+          "Plays offline, cloud save with Google Play Games",
+          "Ads only when you choose to watch one"
+        ],
+        "trailer": {
+          "@type": "VideoObject",
+          "@id": "https://heroarcher.com/#trailer",
+          "name": "Hero Archer trailer",
+          "description": "31 seconds of Hero Archer gameplay: goblin waves, abilities, contraptions, a boss fight and the gear your archer wears.",
+          "thumbnailUrl": "https://heroarcher.com/assets/img/trailer-poster.webp",
+          "contentUrl": "https://heroarcher.com/assets/video/trailer.mp4",
+          "uploadDate": "2026-11-19",
+          "duration": "PT31S"
+        },
+        "author": { "@id": "https://heroarcher.com/#studio" },
+        "publisher": { "@id": "https://heroarcher.com/#studio" }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://heroarcher.com/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Hero Archer free?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Hero Archer is free on Google Play. An ad only plays when you tap to watch one for a bonus, and the purchases are optional: shard packs, Remove Ads and Auto-Pickup." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Hero Archer play offline?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Runs, upgrades and the Workshop all work without a connection. Watching an ad for a bonus needs one, and so does the cloud save." }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the idle part work?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Your archer aims and fires on their own, so you never tap to shoot. You make the calls: which perk to draft, when to fire an ability and what to spend coins on." }
+          },
+          {
+            "@type": "Question",
+            "name": "What do I keep when a run ends?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Coins and the upgrades they bought reset. Shards, Workshop upgrades, gear and chapter progress stay, so a bad run still counts." }
+          },
+          {
+            "@type": "Question",
+            "name": "How many chapters are there?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Four: Emberwood, Frostpeak, the Desert Necropolis and Cinderdeep, 50 waves each with a boss every fifth wave. After them come the Nightmare lap, Endless mode and the Weekly Trial." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I take my progress to a new phone?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Sign in with Google Play Games and your progress is backed up to your own Google account, ready for the next phone." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Hero Archer on iPhone?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Not yet. Hero Archer is Android only for now, on Android 7.1 and up. An iPhone version is in the works." }
+          },
+          {
+            "@type": "Question",
+            "name": "Who makes Hero Archer?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Freeze Gaming, an independent studio. Questions, bugs and ideas go to support@heroarcher.com." }
+          }
+        ]
+      }
+    ]
   }
   </script>
 </head>
@@ -210,6 +319,49 @@
         <div class="nightmare">
           <img src="assets/img/ico-trophy.webp" alt="" width="112" height="108" loading="lazy">
           <p><strong>Then the Nightmare lap.</strong> Clear all four and they come back meaner: one spawn in eight is an elite, and bosses arrive with a champion pack. The Weekly Trial changes the rules every Monday, with weeks like Swarm, where there are twice as many and they're half as tough.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- the FAQ. The same questions and answers are in the structured data in
+         <head>: change one, change both, word for word -->
+    <section class="section section--flush-top" aria-labelledby="questions">
+      <div class="wrap">
+        <p class="plaque">Questions</p>
+        <h2 class="h2" id="questions">Before you climb the tower.</h2>
+        <div class="faq">
+          <div class="faq__item">
+            <h3>Is Hero Archer free?</h3>
+            <p>Yes. Hero Archer is free on Google Play. An ad only plays when you tap to watch one for a bonus, and the purchases are optional: shard packs, Remove Ads and Auto-Pickup.</p>
+          </div>
+          <div class="faq__item">
+            <h3>Does Hero Archer play offline?</h3>
+            <p>Yes. Runs, upgrades and the Workshop all work without a connection. Watching an ad for a bonus needs one, and so does the cloud save.</p>
+          </div>
+          <div class="faq__item">
+            <h3>How does the idle part work?</h3>
+            <p>Your archer aims and fires on their own, so you never tap to shoot. You make the calls: which perk to draft, when to fire an ability and what to spend coins on.</p>
+          </div>
+          <div class="faq__item">
+            <h3>What do I keep when a run ends?</h3>
+            <p>Coins and the upgrades they bought reset. Shards, Workshop upgrades, gear and chapter progress stay, so a bad run still counts.</p>
+          </div>
+          <div class="faq__item">
+            <h3>How many chapters are there?</h3>
+            <p>Four: Emberwood, Frostpeak, the Desert Necropolis and Cinderdeep, 50 waves each with a boss every fifth wave. After them come the Nightmare lap, Endless mode and the Weekly Trial.</p>
+          </div>
+          <div class="faq__item">
+            <h3>Can I take my progress to a new phone?</h3>
+            <p>Yes. Sign in with Google Play Games and your progress is backed up to your own Google account, ready for the next phone.</p>
+          </div>
+          <div class="faq__item">
+            <h3>Is Hero Archer on iPhone?</h3>
+            <p>Not yet. Hero Archer is Android only for now, on Android 7.1 and up. An iPhone version is in the works.</p>
+          </div>
+          <div class="faq__item">
+            <h3>Who makes Hero Archer?</h3>
+            <p>Freeze Gaming, an independent studio. Questions, bugs and ideas go to <a href="mailto:support@heroarcher.com">support@heroarcher.com</a>.</p>
+          </div>
         </div>
       </div>
     </section>

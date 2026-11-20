@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://heroarcher.com/</loc></url>
-  <url><loc>https://heroarcher.com/privacy/</loc></url>
-  <url><loc>https://heroarcher.com/delete-account/</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>https://heroarcher.com/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <video:video>
+      <video:thumbnail_loc>https://heroarcher.com/assets/img/trailer-poster.webp</video:thumbnail_loc>
+      <video:title>Hero Archer trailer</video:title>
+      <video:description>31 seconds of Hero Archer gameplay: goblin waves, abilities, contraptions, a boss fight and the gear your archer wears.</video:description>
+      <video:content_loc>https://heroarcher.com/assets/video/trailer.mp4</video:content_loc>
+      <video:duration>31</video:duration>
+      <video:publication_date>2026-11-19</video:publication_date>
+    </video:video>
+  </url>
+  <url>
+    <loc>https://heroarcher.com/privacy/</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://heroarcher.com/delete-account/</loc>
+    <lastmod>2026-11-20</lastmod>
+  </url>
 </urlset>
