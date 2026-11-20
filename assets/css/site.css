@@ -1,6 +1,8 @@
 /* Hero Archer, heroarcher.com
-   Colours are the game's "Bark & Ember" UITheme tokens; type is the game's
-   own Lilita One (display) and Baloo 2 (text). Mobile first. */
+   Colours are the game's "Frostpeak Slate" palette (UIHex in UITheme.cs, since
+   2026-11-20); type is the game's own Lilita One (display) and Baloo 2 (text).
+   As in the game, gold means coins only: headings take --title, links and focus
+   --selected. Mobile first. */
 
 @font-face {
   font-family: "Baloo 2";
@@ -18,22 +20,25 @@
 }
 
 :root {
-  --bg: #1d150e;
-  --bg-deep: #241a11;
-  --panel: #3a2c20;
-  --panel-inset: #2e2318;
-  --panel-light: #4c3a29;
-  --border: #6b4f2a;
-  --gold: #f0b441;
-  --gold-hi: #ffd27a;
-  --text: #f5eddc;
-  --text-dim: #c9b79b;
-  --text-mute: #a8977c;
-  --subtitle: #d9b77a;
-  --cta-top: #69a032;
-  --cta-bottom: #4c7020;
-  --cta-edge: #2c4410;
-  --cta-lip: #23380b;
+  --bg: #0e1317;           /* between UIHex.Page and Trough */
+  --bg-deep: #10151a;      /* Trough */
+  --panel: #1f262e;        /* Panel */
+  --panel-inset: #181e25;  /* Inset */
+  --panel-light: #2a333d;  /* PanelLight */
+  --border: #465565;       /* Border */
+  --title: #f3f9fc;        /* Title: headings, plaques, title buttons */
+  --title-bottom: #b6dcf0; /* TitleBottom */
+  --selected: #9dd7f2;     /* Selected: links, focus, checks */
+  --selected-hi: #c6e9f8;  /* hover of the above */
+  --gold: #f0b441;         /* currency only, as in the game */
+  --text: #edf2f6;         /* Text */
+  --text-dim: #a2b0bd;     /* TextDim */
+  --text-mute: #8796a3;    /* between TextDim and Muted, 6:1 on --bg */
+  --subtitle: #b6dcf0;     /* TitleBottom */
+  --cta-top: #5ba64d;      /* CtaTop */
+  --cta-bottom: #45893a;   /* Cta */
+  --cta-edge: #2b5a24;
+  --cta-lip: #1f4519;
   --nightmare-bg: #2b1610;
   --nightmare-edge: #6b2a1f;
   --nightmare-text: #ff9b7a;
@@ -68,16 +73,16 @@ main { overflow-x: clip; }
 
 img, video { display: block; max-width: 100%; height: auto; }
 
-a { color: var(--gold); }
-a:hover { color: var(--gold-hi); }
+a { color: var(--selected); }
+a:hover { color: var(--selected-hi); }
 
 :focus-visible {
-  outline: 3px solid var(--gold);
+  outline: 3px solid var(--selected);
   outline-offset: 3px;
   border-radius: 6px;
 }
 
-h1, h2, h3 { font-weight: 400; }
+h1, h2, h3 { font-weight: 400; color: var(--title); }
 
 .wrap {
   max-width: 1180px;
@@ -92,7 +97,7 @@ h1, h2, h3 { font-weight: 400; }
   z-index: 10;
   padding: 10px 16px;
   border-radius: 10px;
-  background: var(--gold);
+  background: var(--selected);
   color: var(--bg);
   font-weight: 700;
   text-decoration: none;
@@ -135,12 +140,12 @@ h1, h2, h3 { font-weight: 400; }
   border-radius: 12px;
   border: 2px solid var(--border);
   background: var(--panel-inset);
-  color: var(--gold);
+  color: var(--title);
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none;
 }
-.top-cta:hover { background: var(--panel); color: var(--gold-hi); }
+.top-cta:hover { background: var(--panel); color: var(--selected-hi); }
 
 /* ---------- hero ---------- */
 
@@ -184,7 +189,7 @@ h1, h2, h3 { font-weight: 400; }
   position: absolute;
   inset: 9px;
   border-radius: inherit;
-  border: 2px solid rgba(240, 180, 65, .4);
+  border: 2px solid rgba(182, 220, 240, .4);
   pointer-events: none;
 }
 .arch__img {
@@ -322,7 +327,7 @@ h1, h2, h3 { font-weight: 400; }
   width: 6px;
   height: 6px;
   border-radius: 1px;
-  background: var(--gold);
+  background: var(--title-bottom);
   transform: rotate(45deg);
 }
 
@@ -351,7 +356,7 @@ h1, h2, h3 { font-weight: 400; }
   border-radius: 9px;
   border: 2px solid var(--border);
   background: var(--panel);
-  color: var(--gold);
+  color: var(--title);
   font-family: var(--font-display);
   font-size: .875rem;
   letter-spacing: .14em;
@@ -390,14 +395,14 @@ h1, h2, h3 { font-weight: 400; }
   margin: 0 auto;
   padding: 8px;
   border-radius: 30px;
-  border: 1px solid rgba(240, 180, 65, .35);
-  background: linear-gradient(#5a4430, #2a1f15);
-  /* a warm glow round it, like the dusk in the arch: a shadow, so it never
+  border: 1px solid rgba(182, 220, 240, .35);
+  background: linear-gradient(#33404d, #141a20);
+  /* a cool glow round it, the game's selection halo: a shadow, so it never
      widens the page (an oversized glow layer made phones scroll sideways) */
   box-shadow:
-    inset 0 1px 0 rgba(255, 220, 150, .18),
+    inset 0 1px 0 rgba(220, 240, 255, .18),
     0 30px 70px rgba(0, 0, 0, .6),
-    0 0 90px 12px rgba(240, 180, 65, .14);
+    0 0 90px 12px rgba(157, 215, 242, .14);
 }
 .player__frame {
   position: relative;
@@ -424,16 +429,16 @@ h1, h2, h3 { font-weight: 400; }
   justify-content: center;
   padding: 0;
   border: 1px solid rgba(255, 255, 255, .22);
-  background: rgba(18, 12, 7, .6);
+  background: rgba(8, 11, 14, .6);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   color: #fff;
   cursor: pointer;
   transition: background-color .15s ease;
 }
-.player__sound:hover, .player__play:hover, .player__full:hover { background: rgba(18, 12, 7, .82); }
+.player__sound:hover, .player__play:hover, .player__full:hover { background: rgba(8, 11, 14, .82); }
 .player__sound:focus-visible, .player__play:focus-visible, .player__full:focus-visible,
-.player__bar:focus-visible { outline: 3px solid var(--gold-hi); outline-offset: 2px; }
+.player__bar:focus-visible { outline: 3px solid var(--selected-hi); outline-offset: 2px; }
 .player__sound[hidden], .player__play[hidden], .player__full[hidden], .player__bar[hidden] { display: none; }
 
 /* sound: a "Tap for sound" pill until it is first used, then a round icon */
@@ -497,7 +502,7 @@ h1, h2, h3 { font-weight: 400; }
 }
 .player__bar::before { background: rgba(255, 255, 255, .18); }
 .player__bar span {
-  background: linear-gradient(90deg, var(--gold), var(--gold-hi));
+  background: linear-gradient(90deg, var(--title-bottom), var(--title));
   transform: scaleX(0);
   transform-origin: left;
 }
@@ -616,11 +621,11 @@ video:fullscreen { object-fit: contain; }
   padding: 10px 12px 11px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: rgba(36, 26, 17, .94);
+  background: rgba(16, 21, 26, .94);
 }
 .chapter small {
   display: block;
-  color: var(--gold);
+  color: var(--title-bottom);
   font-size: .75rem;
   font-weight: 700;
   letter-spacing: .14em;
@@ -722,7 +727,7 @@ video:fullscreen { object-fit: contain; }
   font-size: .9375rem;
 }
 .facts li { display: inline-flex; align-items: center; gap: 8px; }
-.facts svg { width: 18px; height: 18px; flex: none; color: var(--gold); }
+.facts svg { width: 18px; height: 18px; flex: none; color: var(--selected); }
 
 /* ---------- footer ---------- */
 

@@ -80,9 +80,11 @@ for src, name in [
     webp(im, name + "-400", 400, quality=78)
 
 # The screenshot rail: whole 1080x1920 screens from the current build
-# (docs/release/store-assets/site, captured 2026-11-19 with trailer/unity: the
-# boss and Storm Rod frames come from the still_boss and still_storm takes, the
-# contraption pick and the gear screen are single captures).
+# (docs/release/store-assets/site). Recaptured 2026-11-20 in the Frostpeak Slate UI
+# (proposal 49) by a batchmode PlayMode capture that ports the still_boss and
+# still_storm staging from trailer/unity/takes.py; the contraption pick and the gear
+# screen (full Emberwood Warden set) are single captures. In batchmode the HUD
+# canvases go onto the world camera: a second URP camera clears over the field.
 for src, name in [("shot_boss", "shot-boss"), ("shot_storm", "shot-storm"),
                   ("shot_pick", "shot-contraption"), ("shot_gear", "shot-gear")]:
     im = Image.open(game("docs", "release", "store-assets", "site", src + ".png")).convert("RGB")
@@ -128,14 +130,16 @@ icon.save(os.path.join(SITE, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)
 # Link preview (Open Graph, what WhatsApp and the rest show): the page's own
 # hero, so a shared link looks like the site. The logo and the page's first
 # line on the left; on the right the same dusk arch (the .arch rules in
-# site.css: elliptical top, 5px border, a gap, an outer ring, a thin gold inner
+# site.css: elliptical top, 5px border, a gap, an outer ring, a thin frost inner
 # line) with the same tower and archer in front of it, the ground shadow and
 # the embers. It used to be the store feature graphic, whose old hooded
 # archer and plain brown backdrop matched nothing on the page.
 from PIL import ImageDraw, ImageFilter, ImageFont  # noqa: E402
 
 OW, OH, S = 1200, 630, 2  # drawn at 2x, then scaled down for clean curves
-BG, BORDER, PANEL_LIGHT = (29, 21, 14), (107, 79, 42), (76, 58, 41)
+# site.css --bg, --border, --panel-light (Frostpeak Slate)
+BG, BORDER, PANEL_LIGHT = (14, 19, 23), (70, 85, 101), (42, 51, 61)
+SELECTED, TITLE_BOTTOM, TITLE = (157, 215, 242), (182, 220, 240), (243, 249, 252)
 og = Image.new("RGBA", (OW * S, OH * S), BG + (255,))
 
 
@@ -150,13 +154,13 @@ def arch_mask(w, h, inset=0):
     return m
 
 
-# a warm glow behind the arch
+# a cool glow behind the arch (the game's selection halo, --selected)
 aw, ah = 455 * S, 520 * S
 ax, ay = OW * S - 70 * S - aw, 28 * S
 glow = Image.new("L", og.size, 0)
 ImageDraw.Draw(glow).ellipse([ax - 60 * S, ay + 20 * S, ax + aw + 60 * S, ay + ah + 40 * S], fill=70)
 glow = glow.filter(ImageFilter.GaussianBlur(70 * S))
-og.paste(Image.new("RGBA", og.size, (240, 180, 65, 255)), (0, 0), glow.point(lambda v: v * 0.55))
+og.paste(Image.new("RGBA", og.size, SELECTED + (255,)), (0, 0), glow.point(lambda v: v * 0.55))
 
 # the frame: outer ring, page-colour gap, border, then the painting
 for grow, colour in [(10 * S, PANEL_LIGHT), (8 * S, BG), (5 * S, BORDER)]:
@@ -173,7 +177,7 @@ line = inner.filter(ImageFilter.MaxFilter(5)).point(lambda v: 255 if v else 0)
 ring = Image.new("L", inner.size, 0)
 ring.paste(line, (0, 0))
 ring.paste(0, (0, 0), arch_mask(aw, ah, inset=11 * S))
-og.paste(Image.new("RGBA", ring.size, (240, 180, 65, 255)), (ax, ay), ring.point(lambda v: v * 0.4))
+og.paste(Image.new("RGBA", ring.size, TITLE_BOTTOM + (255,)), (ax, ay), ring.point(lambda v: v * 0.4))
 
 # the ground shadow, the tower and the archer (the composite the hero uses)
 th = round(ah * 0.91)
@@ -214,7 +218,7 @@ tx0 = lx + (lw - (tb[2] - tb[0])) // 2 - tb[0]
 ty0 = ly + lg.height + 18 * S - tb[1]
 td = ImageDraw.Draw(og)
 td.text((tx0, ty0 + 4 * S), tag, font=tag_font, fill=(0, 0, 0, 140))
-td.text((tx0, ty0), tag, font=tag_font, fill=(245, 237, 220, 255))
+td.text((tx0, ty0), tag, font=tag_font, fill=TITLE + (255,))
 
 og = og.convert("RGB").resize((OW, OH), Image.LANCZOS)
 og.save(os.path.join(SITE, "og-image.jpg"), "JPEG", quality=88, optimize=True, progressive=True)
