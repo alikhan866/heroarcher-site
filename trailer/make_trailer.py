@@ -54,12 +54,13 @@ CUT = [
     ("frost", 243, 305, "04_abilities", {}),             # Poison Cloud
     ("storm", 62, 150, "05_contraption", {}),            # the Storm Rod arcs down a column
     ("ballista", 105, 195, "05_contraption", {}),        # the Ballista spear through a line
-    # boss frames follow the take's events (2026-11-20 take: windup 294, dead 395,
-    # pickup 451, equip 485; the 11-19 take ran 17 frames later, same spacing)
-    ("boss", 251, 423, "06_boss", {}),                   # SLAM, Mega Gust, BROKEN, Lightning
+    # boss frames follow the take's events (2026-11-20 evening take, with the gear drop at its real
+    # 88 px size: windup 330, dead + drop 431, pickup 500, equip 521; the morning take ran 36 frames
+    # earlier with the same spacing, its drop ~4x too big from GearDrop dividing by Screen.height)
+    ("boss", 287, 459, "06_boss", {}),                   # SLAM, Mega Gust, BROKEN, Lightning
     # the helm drops and is picked up (a gentle push, the item's name still fits),
     # then in on the archer as it goes on
-    ("boss", 423, 563, "07_gear", {"zoom": [(438, 1.0, 540, 960), (465, 1.2, 545, 700), (479, 1.2, 545, 700), (505, 2.2, 545, 470)]}),
+    ("boss", 459, 599, "07_gear", {"zoom": [(474, 1.0, 540, 960), (501, 1.2, 545, 700), (515, 1.2, 545, 700), (541, 2.2, 545, 470)]}),
     ("gear", 38, 200, "07_gear", {}),                    # the gear screen: a set cloak equipped
     ("blizzard", 60, 122, "08_lands", {}),               # Frostpeak's blizzard
     ("rise", 52, 178, "08_lands", {}),                   # the dead get back up
