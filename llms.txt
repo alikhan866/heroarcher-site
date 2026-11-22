@@ -35,6 +35,6 @@ Hero Archer is a single game with its own site, heroarcher.com. It is not affili
 
 - [Hero Archer on Google Play](https://play.google.com/store/apps/details?id=com.omarkhan.heroarcher)
 - [Website](https://heroarcher.com/): features, screenshots, trailer and FAQ
-- [Trailer, 31 seconds (MP4)](https://heroarcher.com/assets/video/trailer.mp4)
+- [Trailer, 55 seconds (MP4)](https://heroarcher.com/assets/video/trailer.mp4)
 - [Privacy policy](https://heroarcher.com/privacy/)
 - [Data deletion](https://heroarcher.com/delete-account/)

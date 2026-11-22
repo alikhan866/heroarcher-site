@@ -3,14 +3,14 @@
         xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://heroarcher.com/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <lastmod>2026-11-22</lastmod>
     <video:video>
       <video:thumbnail_loc>https://heroarcher.com/assets/img/trailer-poster.webp</video:thumbnail_loc>
       <video:title>Hero Archer trailer</video:title>
-      <video:description>31 seconds of Hero Archer gameplay: goblin waves, abilities, contraptions, a boss fight and the gear your archer wears.</video:description>
+      <video:description>55 seconds of Hero Archer gameplay: goblin waves, abilities, contraptions, a boss fight, the gear your archer wears and merges, and the monthly battle pass.</video:description>
       <video:content_loc>https://heroarcher.com/assets/video/trailer.mp4</video:content_loc>
-      <video:duration>31</video:duration>
-      <video:publication_date>2026-11-19</video:publication_date>
+      <video:duration>55</video:duration>
+      <video:publication_date>2026-11-22</video:publication_date>
     </video:video>
   </url>
   <url>
