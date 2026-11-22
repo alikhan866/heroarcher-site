@@ -39,7 +39,12 @@ CAPTIONS = [
     ("04_abilities", "EIGHT ABILITIES", "Pick your moment"),
     ("05_contraption", "ONE CONTRAPTION PER RUN", "Storm Rod, Ballista, Barracks and more"),
     ("06_boss", "EVERY 5TH WAVE, A BOSS", "Break the windup before the axe falls"),
-    ("07_gear", "DRESS YOUR ARCHER", "Boss loot shows up on your archer"),
+    ("07_gear", "BOSSES DROP LOOT", "Your archer wears what you find"),
+    # 2026-11-22: the gear part, slower (Omar: "the user needs some time to actually process what's going on")
+    ("07b_dress", "DRESS YOUR ARCHER", "Bows, hoods, cloaks, rings and more"),
+    ("07c_merge", "MERGE THREE INTO ONE", "Every merge adds a star"),
+    ("08_pass", "A NEW PASS EVERY MONTH", "Free and premium rewards"),
+    ("08b_skin", "A TOWER SKIN EVERY MONTH", "Frostforged is the first"),
     ("08_lands", "FOUR LANDS, 50 WAVES EACH", "Then the Nightmare lap"),
 ]
 
@@ -142,7 +147,7 @@ for card in cards + [end]:
     t = frame.copy()
     t.alpha_composite(card)
     thumbs.append(t.convert("RGB").resize((360, 640), Image.LANCZOS))
-sheet = Image.new("RGB", (5 * 370, 2 * 650), (20, 20, 20))
+sheet = Image.new("RGB", (5 * 370, ((len(thumbs) + 4) // 5) * 650), (20, 20, 20))
 for i, t in enumerate(thumbs):
     sheet.paste(t, ((i % 5) * 370 + 5, (i // 5) * 650 + 5))
 sheet.save(os.path.join(HERE, "build", "captions-preview.jpg"), quality=86)

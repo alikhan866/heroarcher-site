@@ -44,29 +44,47 @@ TAGS = ["-color_range", "tv", "-colorspace", "bt709", "-color_primaries", "bt709
 # (take, first frame, end frame, caption card, options). Frames are the take's
 # own numbers (60 per second). A caption runs across every consecutive segment
 # that names it.
+# 2026-11-22 re-cut (Omar: "a little longer, especially the equipment part ... the user needs some time
+# to actually process what's going on"): every take re-recorded from main (proposals 54-62: the readable
+# item card, the merge animation, painted spells, death clips and marks, the battle pass, tower skins).
+# The gear part runs ~17 s where it ran ~5: the drop and pickup, the item card held long enough to read,
+# EQUIP and a swipe back to the doll wearing it, then a full merge. The boss and the loot play under the
+# Emberwood boss theme.
 CUT = [
     ("ember", 0, 150, "01_hook", {}),                    # the crowd closes in from every side
-    ("alone", 20, 230, "02_alone", {}),                  # no taps: the archer works, the coins tick
-    ("ember", 515, 640, "03_spend", {}),                 # Damage bought twice
-    ("ember", 140, 215, "04_abilities", {}),             # Arrow Rain on the bunched crowd
-    ("frost", 72, 118, "04_abilities", {}),              # Frost Snare
-    ("frost", 158, 205, "04_abilities", {}),             # Lightning on the yeti
-    ("frost", 243, 305, "04_abilities", {}),             # Poison Cloud
-    ("storm", 62, 150, "05_contraption", {}),            # the Storm Rod arcs down a column
-    ("ballista", 105, 195, "05_contraption", {}),        # the Ballista spear through a line
-    # boss frames follow the take's events (2026-11-20 evening take, with the gear drop at its real
-    # 88 px size: windup 330, dead + drop 431, pickup 500, equip 521; the morning take ran 36 frames
-    # earlier with the same spacing, its drop ~4x too big from GearDrop dividing by Screen.height)
-    ("boss", 287, 459, "06_boss", {}),                   # SLAM, Mega Gust, BROKEN, Lightning
-    # the helm drops and is picked up (a gentle push, the item's name still fits),
-    # then in on the archer as it goes on
-    ("boss", 459, 599, "07_gear", {"zoom": [(474, 1.0, 540, 960), (501, 1.2, 545, 700), (515, 1.2, 545, 700), (541, 2.2, 545, 470)]}),
-    ("gear", 38, 200, "07_gear", {}),                    # the gear screen: a set cloak equipped
-    ("blizzard", 60, 122, "08_lands", {}),               # Frostpeak's blizzard
-    ("rise", 52, 178, "08_lands", {}),                   # the dead get back up
-    ("cinder", 110, 172, "08_lands", {}),                # Cinderdeep's lava hounds
-    ("nightmare", 96, 160, "08_lands", {}),              # the Nightmare lap
+    ("alone", 20, 220, "02_alone", {}),                  # no taps: the archer works, the coins tick
+    ("ember", 515, 660, "03_spend", {}),                 # Damage bought twice (taps 541, 587)
+    ("ember", 140, 228, "04_abilities", {}),             # Arrow Rain on the bunched crowd (tap 151)
+    ("frost", 72, 135, "04_abilities", {}),              # Frost Snare (81)
+    ("frost", 158, 218, "04_abilities", {}),             # Lightning (166)
+    ("frost", 243, 315, "04_abilities", {}),             # Poison Cloud (251)
+    ("storm", 62, 165, "05_contraption", {}),            # the Storm Rod arcs down a column
+    ("ballista", 105, 205, "05_contraption", {}),        # the Ballista spear through a line
+    # the take's events: windup 499, Mega Gust 524, Lightning 600 and the boss dead, the Great Helm
+    # dropped 600, picked up 656, worn 690
+    ("boss", 456, 630, "06_boss", {"music": "boss"}),    # SLAM, Mega Gust, BROKEN, Lightning
+    # the helm drops, a gentle push while it is picked up (its name still fits), then in on the archer
+    ("boss", 630, 800, "07_gear", {"music": "boss",
+                                   "zoom": [(640, 1.0, 540, 960), (657, 1.2, 550, 690), (672, 1.2, 550, 690), (712, 2.2, 540, 420)]}),
+    # the gear screen (gearcard take): the doll, a swipe to the bag, the set cloak's card held 2.7 s,
+    # EQUIP, a swipe back to the doll in it
+    ("gearcard", 20, 405, "07b_dress", {}),
+    # a Long Bow with two copies: its card and MERGE 3 (tap 491), the MERGE THREE sheet (631), MERGE (721)
+    # and the 4.8 s merge to its end (1008), the stats counted up
+    ("gearcard", 470, 568, "07c_merge", {}),
+    ("gearcard", 612, 1030, "07c_merge", {}),
+    # the pass: the home screen, its chip (51), the sheet mid-season, free 13 claimed (201); then premium's
+    # unique (286) and chest (371). (Not the skin's card: a ready one draws CLAIM over the skin's name.)
+    ("pass", 30, 228, "08_pass", {}),
+    ("pass", 272, 400, "08_pass", {}),
+    # Frostforged on the tower in Emberwood, a slow push in
+    ("skin", 60, 235, "08b_skin", {"zoom": [(60, 1.0, 540, 960), (235, 1.3, 540, 640)]}),
+    ("blizzard", 60, 132, "08_lands", {}),               # Frostpeak's blizzard and its troll
+    ("rise", 40, 168, "08_lands", {}),                   # the dead get back up
+    ("cinder", 110, 182, "08_lands", {}),                # Cinderdeep's lava hounds
+    ("nightmare", 90, 168, "08_lands", {}),              # the Nightmare lap
 ]
+BOSS_SPANS = []         # output frames under the boss theme (filled by build_frames)
 END_FRAMES = 210        # the end card, 3.5 s
 END_XFADE = 18          # last shot dissolves into it
 CAPTION_FADE = 6
@@ -136,6 +154,25 @@ def draw_taps(im, taps, n):
             im.alpha_composite(sp, (int(x - sp.width / 2), int(y - sp.height / 2)))
 
 
+def draw_swipes(im, swipes, n):
+    """swipes: [(first frame, x, y0, y1, frames)] from the takes' "swipe" events: a thumb's soft dot that
+    presses, slides with the page (eased like it) and lifts."""
+    for f0, x, y0, y1, ln in swipes:
+        age = n - f0
+        if age < -4 or age > ln + 8:
+            continue
+        k = max(0.0, min(1.0, age / ln))
+        k = k * k * (3 - 2 * k)
+        y = y0 + (y1 - y0) * k
+        a = min(1.0, (age + 4) / 4) * min(1.0, (ln + 8 - age) / 8)
+        dot = Image.new("RGBA", (120, 120), (0, 0, 0, 0))
+        d = ImageDraw.Draw(dot)
+        d.ellipse([60 - 31, 60 - 31, 60 + 31, 60 + 31], fill=(8, 11, 14, int(70 * a)))
+        d.ellipse([60 - 27, 60 - 27, 60 + 27, 60 + 27], fill=(255, 255, 255, int(150 * a)))
+        d.ellipse([60 - 27, 60 - 27, 60 + 27, 60 + 27], outline=(255, 255, 255, int(235 * a)), width=6)
+        im.alpha_composite(dot, (int(x - 60), int(y - 60)))
+
+
 def zoomed(im, n, keys):
     """keys: [(frame, zoom, centre x, centre y)], eased between keyframes."""
     if n <= keys[0][0]:
@@ -183,13 +220,19 @@ def build_frames():
     timeline = []  # (out frame, take, take frame) for the sound
     out_n = 0
     last = None
+    del BOSS_SPANS[:]
     for take, a, b, cap, opt in CUT:
+        if opt.get("music") == "boss":
+            BOSS_SPANS.append((out_n, out_n + (b - a)))
         taps = [(int(r[0]), int(r[1]), int(r[2])) for r in read_log(take, "taps.txt")]
+        swipes = [(int(r[0]), int(r[2]), int(r[3]), int(r[4]), int(r[5])) for r in read_log(take, "events.txt")
+                  if len(r) >= 6 and r[1] == "swipe"]
         if cap not in cards:
             cards[cap] = Image.open(os.path.join(CARDS, cap + ".png")).convert("RGBA")
         for n in range(a, b):
             im = frame(take, n).convert("RGBA")
             draw_taps(im, taps, n)
+            draw_swipes(im, swipes, n)
             if "zoom" in opt:
                 im = zoomed(im, n, opt["zoom"])
             al = caption_alpha(cap, out_n)
@@ -243,6 +286,10 @@ SFX = {
     "Brute": [A + "vo_brute_death_a.mp3", A + "vo_brute_death_b.mp3"],
     "Undead": [A + "vo_undead_death_a.mp3", A + "vo_undead_death_b.mp3"],
     "land": R + "sfx_gear_drop_land.mp3", "pick": R + "sfx_gear_pick_magic.mp3", "equip": R + "sfx_gear_equip.mp3",
+    # proposal 59's ability sounds (ArrowRainAbility / TowerAbilities: the rain's whoosh at 0.7, the gust at 0.8)
+    "rain": R + "sfx_ability_rain_b.mp3", "gust2": R + "sfx_ability_gust_a.mp3",
+    # proposal 48's merge (GearMergeFx: the charge at 0.5, the combine at 0.55) and a pass claim (levelUp at 0.6)
+    "charge": R + "sfx_gear_charge.wav", "combine": R + "sfx_gear_combine.mp3", "levelup": A + "sfx_levelup.wav",
 }
 ANNOUNCE = {
     "Ability_ArrowRain": A + "vo_announce_arrowrain_loud.wav", "Ability_Frost": A + "vo_announce_frostsnare_loud.wav",
@@ -250,7 +297,7 @@ ANNOUNCE = {
     "Ability_MegaGust": A + "vo_announce_megagust_loud.wav",
 }
 CAST = {"Ability_Frost": ("frost", 0.7), "Ability_Lightning": ("lightning", 0.8), "Ability_Poison": ("poison", 0.6),
-        "Ability_MegaGust": ("gust", 0.8)}
+        "Ability_MegaGust": ("gust2", 0.8), "Ability_ArrowRain": ("rain", 0.7)}
 
 
 def build_sound(timeline, total_frames):
@@ -303,6 +350,10 @@ def build_sound(timeline, total_frames):
                     put(SFX["pick"], o, 0.45, pitch=False)
                 elif kind == "equip":
                     put(SFX["equip"], o, 0.5, pitch=False)
+                elif kind == "mergecharge":
+                    put(SFX["charge"], o, 0.5, pitch=False)
+                elif kind == "mergeimpact":
+                    put(SFX["combine"], o, 0.55, pitch=False)
         for row in read_log(take, "taps.txt"):
             n, name = int(row[0]), row[3]
             for o in where.get((take, n), []):
@@ -317,17 +368,48 @@ def build_sound(timeline, total_frames):
                             put(SFX["impact"], o + 8 + k * 5 + rng.randint(0, 3), 0.3)
                 elif name.startswith("Upgrade_"):
                     put(SFX["upgrade"], o, 0.7)
-                elif name.startswith("Item") or name.startswith("Cta_"):
+                elif name.startswith("Item") or name.startswith("Cta_") or name in ("Continue", "BattlePassChipV2") \
+                        or name.startswith("MERGE"):
                     put(SFX["click"], o, 0.8)
+                elif name.startswith("Card_"):   # a pass reward claimed
+                    put(SFX["click"], o, 0.8)
+                    put(SFX["levelup"], o, 0.6, pitch=False)
 
-    # the music bed: Emberwood from the top, out over the end card (the game's 0.55)
-    music = clip("Assets/Audio/Music/music_ch1_emberwood.wav")[: n_samples].copy()
+    # the music bed: Emberwood from the top, out over the end card (the game's 0.55). Over the segments
+    # marked {"music": "boss"} the Emberwood boss theme takes the floor, from its top, with the game's
+    # equal-power crossfade (GameAudio: the chapter track keeps running under it)
     total_s = total_frames / FPS
-    t = np.arange(len(music)) / SR
+    ns = int(total_s * SR) + SR
+
+    def looped(path):
+        x = clip(path)
+        reps = ns // len(x) + 1
+        return np.concatenate([x] * reps)[:ns].copy()
+
+    ember = looped("Assets/Audio/Music/music_ch1_emberwood.wav")
+    t = np.arange(ns) / SR
     gain = np.clip(t / 0.12, 0, 1) * np.clip((total_s - t) / 2.6, 0, 1)
+    k = np.zeros(ns, dtype=np.float32)
+    boss_from = None
+    for o0, o1 in BOSS_SPANS:
+        if boss_from is None:
+            boss_from = o0
+        k[int(o0 / FPS * SR): int(o1 / FPS * SR)] = 1.0
+    if boss_from is not None:
+        # a 0.8 s ramp each way (a moving average of the on/off mask)
+        ramp = int(0.8 * SR)
+        k = np.convolve(k, np.ones(ramp, dtype=np.float32) / ramp, mode="same")
+        theme = np.zeros((ns, 2), dtype=np.float32)
+        b = clip("Assets/Audio/Music/music_ch1_emberwood_boss.wav")
+        s0 = max(0, int(boss_from / FPS * SR) - ramp // 2)
+        seg = b[: ns - s0]
+        theme[s0: s0 + len(seg)] = seg
+        music = ember * np.cos(k * np.pi / 2)[:, None] + theme * np.sin(k * np.pi / 2)[:, None]
+    else:
+        music = ember
     music *= (0.55 * gain)[:, None]
     bed = np.zeros_like(mix)
-    bed[: len(music)] = music
+    bed[: min(len(music), len(bed))] = music[: len(bed)]
     out = (mix + bed)[: int(total_s * SR)]
     mix[: int(total_s * SR)].astype(np.float32).tofile(os.path.join(EDIT, "sfx.f32"))  # QA: the game sound alone
     os.makedirs(OUT, exist_ok=True)
