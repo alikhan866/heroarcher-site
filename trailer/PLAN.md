@@ -104,7 +104,13 @@ trailer/unity/record.py       python trailer/unity/record.py ember frost ...
 python trailer/captions.py ../Evil-archer          # caption cards + end card
 python trailer/make_trailer.py ../Evil-archer      # trailer + the site's copy (about 3 min)
 python trailer/make_trailer.py ../Evil-archer --web    # the site's copy only
+python trailer/make_trailer_wide.py ../Evil-archer         # the 16:9 cut for Google Play (about 5 min)
+python trailer/make_trailer_wide.py ../Evil-archer --stills  # its layout, one still per shot, first
 ```
+
+The 16:9 cut (2026-11-23) is the one linked on Google Play; the vertical one is
+the YouTube Short. Same cut, captions and sound; `make_trailer_wide.py` says why
+and how its layout works. Re-run it after any change to `make_trailer.py`'s cut.
 
 `make_trailer.py` holds the cut list (take, in, out, caption) at the top. It
 draws the tap rings, the push in on the helm, the caption fades, the end card
